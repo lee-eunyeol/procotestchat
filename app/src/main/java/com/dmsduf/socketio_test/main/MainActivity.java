@@ -4,7 +4,6 @@ import android.app.ActivityGroup;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,8 +15,6 @@ import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.chat.ChatClientIO;
 import com.dmsduf.socketio_test.chat.ChatRoomActivity;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class MainActivity extends ActivityGroup {
@@ -27,7 +24,7 @@ public class MainActivity extends ActivityGroup {
 
 
     SharedSettings shared_settings;
-    public com.dmsduf.socketio_test.chat.ChatClientIO ChatClientIO;
+
 
 
     @Override
@@ -50,15 +47,14 @@ public class MainActivity extends ActivityGroup {
         //토큰저장
 //        Log.d(tag_firebase,"온크리에잇에서 토큰저장메소드시작");
 //        updateToken(FirebaseInstanceId.getInstance().getToken());
-        socketio();
+        init_socketio_service();
 
     }
+    //소켓아이오를 연결하는 채팅 서비스를 시작한다.
+    public void init_socketio_service(){
 
-    public void socketio(){
-        //소켓아이오 연결을 위한 인스턴스 할당
-        ChatClientIO = new ChatClientIO();
-        ChatClientIO.initIO(this);
-        String C2S = "client_to_server";
+        Intent intent = new Intent(this, ChatClientIO.class);
+        this.startService(intent);
 
     }
     private void setupTabHost()

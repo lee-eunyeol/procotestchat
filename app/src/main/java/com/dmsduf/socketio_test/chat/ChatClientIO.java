@@ -1,10 +1,13 @@
 package com.dmsduf.socketio_test.chat;
 
 import android.annotation.SuppressLint;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.dmsduf.socketio_test.SharedSettings;
@@ -29,23 +32,48 @@ import io.socket.emitter.Emitter;
 import io.socket.engineio.client.transports.WebSocket;
 import okhttp3.OkHttpClient;
 
-public class ChatClientIO {
+public class ChatClientIO extends Service {
     public static Socket socket;
     OkHttpClient okHttpClient;
-    Context context;
-    String TAG = "chat_client_io";
+
+    String TAG = "client-io_service";
     String S2C = "server_to_client";
     String url_local = "http://192.168.56.1:5000";
     String url_EY = "https://15.165.252.235:3001";
+
     SharedSettings sharedSettings;
     public static Gson gson;
 
+    public ChatClientIO(){}
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "oncreate 서비스");
+    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"onDestroy 서비스가 꺼짐");
+        //소켓이 연결되어있는 상태라면 소켓 연결을 끊도록 한다.
+        if(socket.connected()) {
+            socket.disconnect();
+        };
+    }
 
-    public void initIO(Context context) {
-        this.context = context;
-        sharedSettings = new SharedSettings(context,"user_info");
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG,"onStartCommand 서비스시작");
+
+        sharedSettings = new SharedSettings(this,"user_info");
+
         gson = new Gson();
+
         init_default_SSL(); //SSL관련 (https)
 
         init_socket_settings(); //소켓연결준비
@@ -55,8 +83,25 @@ public class ChatClientIO {
         init_socket_events(); //채팅관련 소켓 이벤트관련 함수선언
 
         socket.connect();
+        return super.onStartCommand(intent, flags, startId);
 
     }
+
+//    public void initIO() {
+//
+//        sharedSettings = new SharedSettings(this,"user_info");
+//        gson = new Gson();
+//        init_default_SSL(); //SSL관련 (https)
+//
+//        init_socket_settings(); //소켓연결준비
+//
+//        init_default_events(); //기본적인 소켓 연결관련 함수선언
+//
+//        init_socket_events(); //채팅관련 소켓 이벤트관련 함수선언
+//
+//        socket.connect();
+//
+//    }
 
     @SuppressLint("TrustAllX509TrustManager")
     private final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
@@ -159,7 +204,7 @@ public class ChatClientIO {
             if(chattingModel.getRoom_idx()==current_user_room) {          //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
             Intent intent = new Intent("go_chatroom");
             intent.putExtra("message", data);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+            LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
             }
 
         });
@@ -206,6 +251,8 @@ public class ChatClientIO {
     public void send_message(String message) {
 
     }
+
+
     //    //소켓객체 연결끊기
 //    public void leave_room(String room_idx) {
 //
