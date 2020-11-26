@@ -1,6 +1,7 @@
 package com.dmsduf.socketio_test.adapter;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +18,6 @@ import com.dmsduf.socketio_test.data_list.RoomModel;
 
 import java.util.List;
 
-import static com.dmsduf.socketio_test.chat.ChatClientIO.socket;
-
 public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     Context context;
     List<ChattingModel> chat_data;
@@ -29,10 +28,64 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     String TAG = "채팅어댑터";
     int my_idx;
+    Handler handler;
 
+
+    //리사이클러뷰 업데이트 오류떄문에 쓴것.  https://gogorchg.tistory.com/entry/Android-Cannot-call-this-method-while-RecyclerView-is-computing-a-layout-or-scrolling
+    public void notify_with_handler(){
+        final Runnable r = new Runnable() {
+            public void run() {
+                notifyDataSetChanged();
+            }
+
+        };
+        handler.post(r);
+    }
+    //TODO 프론트에서 보낸시간을 기준으로 메세지를 체크 하고있는데 이게 맞을까?
+
+    //성공적으로 메세지를 보냈을 경우 해당하는 메세지를 보냈던 정확한 시간(currenttimemills)을 찾아서 업데이트 시켜준다.
+    public void set_message_success(Long time) {
+        for (int i = 0; i < chat_data.size(); i++) {
+            Boolean a = chat_data.get(i).getFront_time() == time;
+            Log.d(TAG, a + " 과연??");
+            Log.d(TAG, chat_data.get(i).getFront_time() + "");
+            if (chat_data.get(i).getFront_time() - time == 0) {
+
+                chat_data.get(i).remove_pendingType();
+                notify_with_handler();
+                break;
+            }
+
+        }
+
+
+    }
+
+    //메세지보내기가 실패했을 경우 실패 메세지를 띄운다.
+    public void set_message_error(Long time) {
+        for (int i = 0; i < chat_data.size(); i++) {
+            if (chat_data.get(i).getFront_time() - time == 0) {
+                chat_data.get(i).add_errorType();
+                notify_with_handler();
+                break;
+            }
+        }
+
+
+    }
+
+    //내가 메세지를 받았을 경우 : 시간을 보낸 정확한 시간을 가지고 키값에 넣는다.
     public void add_message(ChattingModel ChattingModel) {
-        Boolean socket_state = socket.connected();
-        Log.d(TAG, "소켓연결상태: " + socket_state);
+
+
+        chat_data.add(ChattingModel);
+
+        notifyDataSetChanged();
+
+    }
+
+    //내가 메세지를 보냈을경우 : 시간을 보낸 정확한 시간을 가지고 키값에 넣는다.
+    public void add_front_message(ChattingModel ChattingModel) {
 
         chat_data.add(ChattingModel);
         notifyDataSetChanged();
@@ -44,6 +97,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.chat_data = data;
         this.my_idx = my_idx;
         this.roomModel = roomModel;
+        this.handler = new Handler();
 
 
     }
@@ -99,9 +153,10 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 ((my_chat_view_holder) holder).time.setText(chat_data.get(position).getTime());
                 //읽음처리
                 if (chat_data.get(position).getType().contains("[pending]")) {
-                    Log.d(TAG, "소켓연결이 안되서 메세지 안보내짐");
                     ((my_chat_view_holder) holder).count.setText("대기중");
 
+                } else if (chat_data.get(position).getType().contains("[error]")) {
+                    ((my_chat_view_holder) holder).count.setText("에러");
                 } else {
                     if (none_read_count == 0) {
                         ((my_chat_view_holder) holder).count.setText("");
