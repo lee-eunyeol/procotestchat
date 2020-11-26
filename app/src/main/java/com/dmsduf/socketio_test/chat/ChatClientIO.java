@@ -26,6 +26,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -169,7 +170,12 @@ public class ChatClientIO extends Service {
             public void call(Object... args) {
                 Log.d(TAG, "EVENT_CONNECT");
                 Log.d(TAG, "연결되었습니다!!");
-                emit_socket("user_login", gson.toJson(new UserModel(sharedSettings.get_something_string("user_nickname"), sharedSettings.get_something_int("user_idx"))));
+                emit_socket("user_login", gson.toJson(new UserModel(sharedSettings.get_something_string("user_nickname"), sharedSettings.get_something_int("user_idx"))), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+
+                    }
+                });
             }
         });
         socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
@@ -225,9 +231,9 @@ public class ChatClientIO extends Service {
         });
     }
 
-    public static void emit_socket(String guide, Object object) {
+    public static void emit_socket(String guide, Object object,Ack ack) {
         String C2S = "client_to_server";
-
+        String TAG = "socket.emit";
         Log.d("socket.emit!", guide + "::" + object.toString());
         switch (guide) {
             case "user_login":
@@ -245,7 +251,7 @@ public class ChatClientIO extends Service {
                 }
                 break;
             case "send_message":
-                socket.emit(C2S + "message", object);
+                socket.emit(C2S + "message", object,ack);
                 break;
             case "check_room":
                 socket.emit(C2S + "check_room", object);

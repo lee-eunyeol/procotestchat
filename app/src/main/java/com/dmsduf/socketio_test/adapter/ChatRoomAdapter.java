@@ -19,6 +19,8 @@ import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 
 import java.util.List;
 
+import io.socket.client.Ack;
+
 import static com.dmsduf.socketio_test.chat.ChatClientIO.emit_socket;
 
 public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -60,7 +62,12 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
                 //소켓에 방번호 주어서 방 입장신호 emit하기
-                emit_socket("join_room",chatRoomModel.get(position).getChatroom_idx());
+                emit_socket("join_room", chatRoomModel.get(position).getChatroom_idx(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+
+                    }
+                });
 
                 int user_idx = sharedSettings.get_something_int("user_idx");
                 Toast.makeText(context, "입장한 방"+chatRoomModel.get(position).getChatroom_idx()+"\n닉네임: "+nickname+"\n유저번호: "+user_idx, Toast.LENGTH_SHORT).show();

@@ -71,20 +71,6 @@ public void add_user_nickname_list(String nickname,String email){
         this.user_nickname_list = new ArrayList<>();
         this.user_email_list = new ArrayList<>();
         this.title = title;
-        //유저들이메일 가져오기
-        for (String user_email : RoomModel.getUsers_email().split(",")){
-            if(user_email.equals("")){}
-            else{
-                this.user_email_list.add(user_email);
-            }
-        }
-        //유저들 닉네임가져오기
-        for (String user : RoomModel.getUsers_nickname().split(",")){
-            if (user.equals("")){}
-            else {
-                this.user_nickname_list.add(user);
-            }
-        }
         this.room_code = room_code;
         SharedSettings = new SharedSettings(context, "user_info");
         this.email = SharedSettings.get_something_string("user_email");
@@ -114,36 +100,7 @@ public void add_user_nickname_list(String nickname,String email){
             ((parti_view_holder)holder).chatting_navi_user_me.setVisibility(View.INVISIBLE);
         }
         //방장일경우 왕관모양의 표시를
-        if (user_nickname_list.get(position).equals(RoomModel.getRoom_maker_nickname())){
-            ((parti_view_holder)holder).chatting_navi_room_maker.setVisibility(View.VISIBLE);
-        }
-        else{
-            ((parti_view_holder)holder).chatting_navi_room_maker.setVisibility(View.INVISIBLE);
-        }
-        ((parti_view_holder)holder).chatting_navi_layout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Log.d(TAG,nickname+"현재유저닉네임");
-                Log.d(TAG, RoomModel.getRoom_maker_nickname()+"이방의방장");
-                if(!user_nickname_list.get(position).equals(nickname)) {
-                    //방장권한을 가진사람의 다이얼로그
 
-                    if (RoomModel.getRoom_maker_nickname().equals(nickname)) {
-                        //다이얼로그생성 (추방,방장위임)
-                        show_dialog(position);
-                    }
-                    //일반 참여자 권한을 가진사람의 다이얼로그
-                    else {
-
-                    }
-                }
-                //나의 경우에는 롱클릭에도 변화가 없음
-                else{
-                    Log.d(TAG,"나일 경우롱클릭안됨 1번만 떠야됨 나니까.");
-                }
-                return false;
-            }
-        });
 
     }
 
