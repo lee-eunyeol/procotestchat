@@ -22,6 +22,21 @@
     </TextView>
 
     <TextView
+        android:id="@+id/recycler_chat_me_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+
+        android:textSize="8sp"
+        app:layout_constraintBottom_toBottomOf="@+id/recycler_chat_me"
+        app:layout_constraintEnd_toStartOf="@+id/recycler_chat_me_time"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+    </TextView>
+
+    <TextView
         android:id="@+id/recycler_chat_me"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

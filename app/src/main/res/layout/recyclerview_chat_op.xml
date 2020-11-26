@@ -54,6 +54,19 @@
 
     </TextView>
 
+    <TextView
+        android:id="@+id/recycler_op_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:text=""
+        android:textSize="8sp"
+        app:layout_constraintBottom_toBottomOf="@+id/recycler_op_chat"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.029"
+        app:layout_constraintStart_toEndOf="@+id/recycler_op_time">
+
+    </TextView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

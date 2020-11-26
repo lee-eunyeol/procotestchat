@@ -6,12 +6,14 @@ import java.util.List;
 public class ChatRoomModel {
     int card_idx;  //모임 인덱스
     int chatroom_idx;
+
     String chatrooom_type; //채팅방 타입 (일반채팅,친구와채팅,비 친구와 채팅)
     List<TagModel> card_tag;
     String creator_profile;
     String creator_nickname;
     String room_name;
-
+    String time;
+    String last_message;
     public int getCard_idx() {
         return card_idx;
     }
@@ -76,7 +78,6 @@ public class ChatRoomModel {
         this.time = time;
     }
 
-    String last_message;
 
     public ChatRoomModel(int card_idx, int chatroom_idx, String chatrooom_type, List<TagModel> card_tag, String creator_profile, String creator_nickname, String last_message, String time) {
         this.card_idx = card_idx;
@@ -97,6 +98,6 @@ public class ChatRoomModel {
         this.room_name = room_name;
     }
 
-    String time;
+
 
 }
