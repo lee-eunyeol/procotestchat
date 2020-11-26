@@ -6,8 +6,8 @@ import android.util.Log;
 
 public class SharedSettings {
     Context context;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
     String TAG = "쉐어드";
     public SharedSettings(Context context, String shared_name){
         this.context = context;
@@ -16,6 +16,11 @@ public class SharedSettings {
         editor = sharedPreferences.edit();
     }
 
+    public void change_file(String file_name){
+        this.sharedPreferences =context.getSharedPreferences(file_name,Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+    }
 
     public String get_something_string(String item){
         String items = sharedPreferences.getString(item,"없음");

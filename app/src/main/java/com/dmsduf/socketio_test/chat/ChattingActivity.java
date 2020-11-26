@@ -144,14 +144,22 @@ public class ChattingActivity extends AppCompatActivity {
     //##메세지를 보냈을떄
     //전송버튼 눌렀을때 채팅 텍스트 뷰의 입력문장을 가져온 후 채팅서버에 보낸다.
     //보낸채팅메세지 내용은 없어지도록 한다.
+
+
     public void send_message(View v) {
         Log.d(TAG,"메세지보내기버튼클릭"+nickname);
         String message = chatting_text.getText().toString();
 
         ChattingModel ChattingModel = new ChattingModel(room_idx,user_idx,"채팅",nickname,message,"12:00");
+        ChattingAdapter.add_message(ChattingModel);
+        sharedSettings.change_file("chatrooms");
+        sharedSettings.set_something_string(String.valueOf(ChattingModel.getRoom_idx()),gson.toJson(ChattingModel));
+
         ChatClientIO.emit_socket("send_message",gson.toJson(ChattingModel));
         chatting_text.setText("");
     }
+
+
     //##메세지를 받았을떄
     private BroadcastReceiver MessageReceiver = new BroadcastReceiver() {
         @Override
