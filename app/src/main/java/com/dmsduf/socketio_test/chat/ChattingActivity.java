@@ -30,9 +30,17 @@ import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.adapter.ChattingAdapter;
 import com.dmsduf.socketio_test.adapter.ChattingNaviAdapter;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
+import com.dmsduf.socketio_test.data_list.RoomModel;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import io.socket.client.Ack;
+
+import static com.dmsduf.socketio_test.chat.ChatClientIO.socket;
 
 
 public class ChattingActivity extends AppCompatActivity {
@@ -75,7 +83,7 @@ public class ChattingActivity extends AppCompatActivity {
     String nickname;
     int room_idx;
     int user_idx;
-
+    RoomModel roomModel;
     SharedSettings sharedSettings;
 
     @SuppressLint("RestrictedApi")
@@ -99,7 +107,10 @@ public class ChattingActivity extends AppCompatActivity {
 
         //유저 idx함께 보내준다.
         chat_data = new ArrayList<>();
-        ChattingAdapter = new ChattingAdapter(this,chat_data,user_idx);
+
+        //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
+        RoomModel roomModel = new RoomModel(1,1,"일반",2);
+        ChattingAdapter = new ChattingAdapter(this,chat_data,user_idx,roomModel);
         chat_recyclerview.setAdapter(ChattingAdapter);
         chat_recyclerview.setLayoutManager(new LinearLayoutManager(this));
 
@@ -147,15 +158,39 @@ public class ChattingActivity extends AppCompatActivity {
 
 
     public void send_message(View v) {
-        Log.d(TAG,"메세지보내기버튼클릭"+nickname);
-        String message = chatting_text.getText().toString();
+        Log.d(TAG,"메세지보내기버튼클릭"+ "소켓연결상태: "+socket.connected());
 
-        ChattingModel ChattingModel = new ChattingModel(room_idx,user_idx,"채팅",nickname,message,"12:00");
-        ChattingAdapter.add_message(ChattingModel);
+        String message = chatting_text.getText().toString();
+        List<Integer> read_people = new ArrayList<>();
+        read_people.add(user_idx);  //자신은 읽은상태에서 바로 보내지도록 설정
+        long send_timemills = System.currentTimeMillis();
+        Date mReDate = new Date(send_timemills);
+        SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formatDate = mFormat.format(mReDate);
+        ChattingModel ChattingModel = new ChattingModel(room_idx,user_idx,"채팅"+"[pending]",nickname,message,formatDate,read_people,send_timemills);
+        ChatClientIO.emit_socket("send_message",gson.toJson(ChattingModel), new Ack() {
+            @Override
+            public void call(Object... args) {
+                //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면
+                Log.d(TAG,"[callback]"+args[0]+"/"+args[1]);
+                switch (String.valueOf(args[0])){
+                    case "[success]메세지보내기" :
+                        ChattingAdapter.set_message_success(Long.parseLong(args[1].toString()));
+                        break;
+                    case "[server_error]메세지보내기":
+                        ChattingAdapter.set_message_error(Long.parseLong(args[1].toString()));
+                        break;
+                }
+
+            }
+        });
+
+        ChattingAdapter.add_front_message(ChattingModel);
+
         sharedSettings.change_file("chatrooms");
         sharedSettings.set_something_string(String.valueOf(ChattingModel.getRoom_idx()),gson.toJson(ChattingModel));
 
-        ChatClientIO.emit_socket("send_message",gson.toJson(ChattingModel));
+
         chatting_text.setText("");
     }
 
@@ -204,7 +239,12 @@ public class ChattingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ChatClientIO.emit_socket("leave_room",room_idx);
+        ChatClientIO.emit_socket("leave_room", room_idx, new Ack() {
+            @Override
+            public void call(Object... args) {
+
+            }
+        });
 
     }
 
