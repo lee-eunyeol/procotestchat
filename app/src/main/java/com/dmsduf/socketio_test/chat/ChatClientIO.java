@@ -148,7 +148,7 @@ public class ChatClientIO {
     public void init_socket_events() {
         Log.d(TAG, "socketinit");
         //메세지 받기
-
+        //채팅방/앱 나감 or 채팅화면이 아님에 따라 변경하기/채팅방목록
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
             String data = (String) args[0];
@@ -156,11 +156,12 @@ public class ChatClientIO {
             //현재 유저가 들어가 있는 채팅방 idx를 검사한다.
             int current_user_room = sharedSettings.get_something_int("current_room_idx");
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
-            if(chattingModel.getRoom_idx()==current_user_room) {          //현재 채팅방 안에 있고 , 접속한 채팅방 idx와 같다면 채팅메세지업데이트리시버
+            if(chattingModel.getRoom_idx()==current_user_room) {          //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
             Intent intent = new Intent("go_chatroom");
             intent.putExtra("message", data);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
+
         });
     }
 
