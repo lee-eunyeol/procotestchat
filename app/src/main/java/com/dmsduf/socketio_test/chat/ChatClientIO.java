@@ -2,7 +2,6 @@ package com.dmsduf.socketio_test.chat;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -10,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.dmsduf.socketio_test.Notification_EY;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.UserModel;
@@ -40,16 +40,19 @@ public class ChatClientIO extends Service {
     String S2C = "server_to_client";
     String url_local = "http://192.168.56.1:5000";
     String url_EY = "https://15.165.252.235:3001";
-
+    Notification_EY notification;
     SharedSettings sharedSettings;
     public static Gson gson;
 
-    public ChatClientIO(){}
+    public ChatClientIO() {
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -59,18 +62,19 @@ public class ChatClientIO extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG,"onDestroy 서비스가 꺼짐");
+        Log.d(TAG, "onDestroy 서비스가 꺼짐");
         //소켓이 연결되어있는 상태라면 소켓 연결을 끊도록 한다.
-        if(socket.connected()) {
+        if (socket.connected()) {
             socket.disconnect();
-        };
+        }
+        ;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG,"onStartCommand 서비스시작");
-
-        sharedSettings = new SharedSettings(this,"user_info");
+        Log.d(TAG, "onStartCommand 서비스시작");
+        notification = new Notification_EY(this);
+        sharedSettings = new SharedSettings(this, "user_info");
 
         gson = new Gson();
 
@@ -83,6 +87,7 @@ public class ChatClientIO extends Service {
         init_socket_events(); //채팅관련 소켓 이벤트관련 함수선언
 
         socket.connect();
+
         return super.onStartCommand(intent, flags, startId);
 
     }
@@ -164,7 +169,7 @@ public class ChatClientIO extends Service {
             public void call(Object... args) {
                 Log.d(TAG, "EVENT_CONNECT");
                 Log.d(TAG, "연결되었습니다!!");
-                emit_socket("user_login",gson.toJson(new UserModel(sharedSettings.get_something_string("user_nickname"),sharedSettings.get_something_int("user_idx"))));
+                emit_socket("user_login", gson.toJson(new UserModel(sharedSettings.get_something_string("user_nickname"), sharedSettings.get_something_int("user_idx"))));
             }
         });
         socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
@@ -197,15 +202,25 @@ public class ChatClientIO extends Service {
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
             String data = (String) args[0];
-            ChattingModel chattingModel = gson.fromJson(data,ChattingModel.class);
+            ChattingModel chattingModel = gson.fromJson(data, ChattingModel.class);
             //현재 유저가 들어가 있는 채팅방 idx를 검사한다.
             int current_user_room = sharedSettings.get_something_int("current_room_idx");
+
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
-            if(chattingModel.getRoom_idx()==current_user_room) {          //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
-            Intent intent = new Intent("go_chatroom");
-            intent.putExtra("message", data);
-            LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
+            if (chattingModel.getRoom_idx() == current_user_room) {          //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
+                Log.d(TAG ,"채팅방에 있어서 채팅창 업데이트");
+                Intent intent = new Intent("go_chatroom");
+                intent.putExtra("message", data);
+                notification.show_notification("ChattingActivity", chattingModel);
+                LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
             }
+            //채팅방안에는 없지만 소켓이 연결되어있는 상태라면 시점에 따라 노티피케이션을 뿌리도록 한다.
+            else if (socket.connected()) {
+                Log.d(TAG, "채팅방에 있지 않아 메시지 전송!");
+                //노티피케이션 생성해서 전송
+                notification.show_notification("ChattingActivity", chattingModel);
+            }
+
 
         });
     }
@@ -213,13 +228,13 @@ public class ChatClientIO extends Service {
     public static void emit_socket(String guide, Object object) {
         String C2S = "client_to_server";
 
-        Log.d("socket.emit!",guide+"::"+object.toString());
+        Log.d("socket.emit!", guide + "::" + object.toString());
         switch (guide) {
             case "user_login":
-                socket.emit(C2S+"user_login",object);
+                socket.emit(C2S + "user_login", object);
                 break;
             case "user_logout":
-                socket.emit(C2S+"user_logout",object);
+                socket.emit(C2S + "user_logout", object);
             case "join_room":
                 socket.emit(C2S + "join_room", object);
                 break;
@@ -241,7 +256,7 @@ public class ChatClientIO extends Service {
                     socket.disconnect();
                     socket.close();
                 }
-            break;
+                break;
         }
     }
 
