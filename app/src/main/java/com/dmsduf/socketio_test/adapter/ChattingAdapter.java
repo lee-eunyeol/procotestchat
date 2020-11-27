@@ -29,29 +29,25 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     String TAG = "채팅어댑터";
     int my_idx;
     Handler handler;
+    final Runnable r= new Runnable() {
+        public void run() {
+            notifyDataSetChanged();
+        }
 
+    };
 
     //리사이클러뷰 업데이트 오류떄문에 쓴것.  https://gogorchg.tistory.com/entry/Android-Cannot-call-this-method-while-RecyclerView-is-computing-a-layout-or-scrolling
     public void notify_with_handler(){
-        final Runnable r = new Runnable() {
-            public void run() {
-                notifyDataSetChanged();
-            }
-
-        };
         handler.post(r);
     }
     //TODO 프론트에서 보낸시간을 기준으로 메세지를 체크 하고있는데 이게 맞을까?
 
     //성공적으로 메세지를 보냈을 경우 해당하는 메세지를 보냈던 정확한 시간(currenttimemills)을 찾아서 업데이트 시켜준다.
-    public void set_message_success(Long time) {
+    public void set_message_success(ChattingModel server_msg) {
         for (int i = 0; i < chat_data.size(); i++) {
-            Boolean a = chat_data.get(i).getFront_time() == time;
-            Log.d(TAG, a + " 과연??");
-            Log.d(TAG, chat_data.get(i).getFront_time() + "");
-            if (chat_data.get(i).getFront_time() - time == 0) {
 
-                chat_data.get(i).remove_pendingType();
+            if (chat_data.get(i).getFront_time() - server_msg.getFront_time() == 0) {  //프론트가 보냈던 시간과 맞는 데이터를 찾은 후 메시지를 바꾼다.
+                chat_data.set(i,server_msg);
                 notify_with_handler();
                 break;
             }
@@ -118,7 +114,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.d(TAG, "어뎁터뷰홀더");
+
         if (viewType == my_chat) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_chat_me, parent, false);
@@ -215,7 +211,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemCount() {
-        Log.d(TAG, chat_data.size() + "개수");
+
         return chat_data.size();
     }
 

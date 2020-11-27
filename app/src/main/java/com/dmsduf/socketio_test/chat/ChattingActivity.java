@@ -2,6 +2,7 @@ package com.dmsduf.socketio_test.chat;
 
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -155,11 +156,10 @@ public class ChattingActivity extends AppCompatActivity {
     //##메세지를 보냈을떄
     //전송버튼 눌렀을때 채팅 텍스트 뷰의 입력문장을 가져온 후 채팅서버에 보낸다.
     //보낸채팅메세지 내용은 없어지도록 한다.
-
-
     public void send_message(View v) {
-        Log.d(TAG,"메세지보내기버튼클릭"+ "소켓연결상태: "+socket.connected());
-
+        Log.d(TAG,"메세지보내기버튼클릭");
+//        ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+//        Log.d(TAG, "현재 최상단 스택" +  mngr.getAppTasks().get(0).getTaskInfo().topActivity.toString());
         String message = chatting_text.getText().toString();
         List<Integer> read_people = new ArrayList<>();
         read_people.add(user_idx);  //자신은 읽은상태에서 바로 보내지도록 설정
@@ -171,11 +171,12 @@ public class ChattingActivity extends AppCompatActivity {
         ChatClientIO.emit_socket("send_message",gson.toJson(ChattingModel), new Ack() {
             @Override
             public void call(Object... args) {
-                //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면
+                //args[0]:콜백내용  args[1]:서버에서 보낸메시지
                 Log.d(TAG,"[callback]"+args[0]+"/"+args[1]);
                 switch (String.valueOf(args[0])){
-                    case "[success]메세지보내기" :
-                        ChattingAdapter.set_message_success(Long.parseLong(args[1].toString()));
+                    case "[success]메세지보내기" :   //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면 채팅메세지를 업데이트
+                        ChattingModel chattingModel = gson.fromJson(args[1].toString(),ChattingModel.class);
+                        ChattingAdapter.set_message_success(chattingModel);
                         break;
                     case "[server_error]메세지보내기":
                         ChattingAdapter.set_message_error(Long.parseLong(args[1].toString()));

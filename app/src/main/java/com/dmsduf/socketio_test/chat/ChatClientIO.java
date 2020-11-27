@@ -1,6 +1,8 @@
 package com.dmsduf.socketio_test.chat;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -19,6 +21,8 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -35,6 +39,7 @@ import okhttp3.OkHttpClient;
 
 public class ChatClientIO extends Service {
     public static Socket socket;
+    public static List<Activity> activityList = new ArrayList<>();
     OkHttpClient okHttpClient;
 
     String TAG = "client-io_service";
@@ -188,6 +193,7 @@ public class ChatClientIO extends Service {
             @Override
             public void call(Object... args) {
                 Log.d(TAG, "EVENT_CONNECT_ERROR");
+
             }
         });
 
@@ -212,26 +218,32 @@ public class ChatClientIO extends Service {
             //현재 유저가 들어가 있는 채팅방 idx를 검사한다.
             int current_user_room = sharedSettings.get_something_int("current_room_idx");
 
+
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
-            if (chattingModel.getRoom_idx() == current_user_room) {          //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
-                Log.d(TAG ,"채팅방에 있어서 채팅창 업데이트");
+            if (chattingModel.getRoom_idx() == current_user_room) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
+                Log.d(TAG, "채팅방에 있어서 채팅창 업데이트");
                 Intent intent = new Intent("go_chatroom");
                 intent.putExtra("message", data);
-                notification.show_notification("ChattingActivity", chattingModel);
                 LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
+
+
+
             }
-            //채팅방안에는 없지만 소켓이 연결되어있는 상태라면 시점에 따라 노티피케이션을 뿌리도록 한다.
+            //채팅방안에는 없지만 소켓이 연결되어있는 상태라면 노티피케이션을 뿌리도록 한다.
             else if (socket.connected()) {
                 Log.d(TAG, "채팅방에 있지 않아 메시지 전송!");
                 //노티피케이션 생성해서 전송
                 notification.show_notification("ChattingActivity", chattingModel);
+
+            } else if (socket.connected()) {
+
             }
 
 
         });
     }
 
-    public static void emit_socket(String guide, Object object,Ack ack) {
+    public static void emit_socket(String guide, Object object, Ack ack) {
         String C2S = "client_to_server";
         String TAG = "socket.emit";
         Log.d("socket.emit!", guide + "::" + object.toString());
@@ -251,7 +263,7 @@ public class ChatClientIO extends Service {
                 }
                 break;
             case "send_message":
-                socket.emit(C2S + "message", object,ack);
+                socket.emit(C2S + "message", object, ack);
                 break;
             case "check_room":
                 socket.emit(C2S + "check_room", object);
