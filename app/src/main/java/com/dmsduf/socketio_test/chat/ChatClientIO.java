@@ -39,7 +39,7 @@ import okhttp3.OkHttpClient;
 
 public class ChatClientIO extends Service {
     public static Socket socket;
-    public static List<Activity> activityList = new ArrayList<>();
+    public static Boolean is_chatroom = false;  //채팅방 목록을 보고있는지 보고있지 않은지 확인 하는변수 MainActivty에서 사용함
     OkHttpClient okHttpClient;
 
     String TAG = "client-io_service";
@@ -72,6 +72,7 @@ public class ChatClientIO extends Service {
         //소켓이 연결되어있는 상태라면 소켓 연결을 끊도록 한다.
         if (socket.connected()) {
             socket.disconnect();
+
         }
         ;
     }
@@ -81,6 +82,7 @@ public class ChatClientIO extends Service {
         Log.d(TAG, "onStartCommand 서비스시작");
         notification = new Notification_EY(this);
         sharedSettings = new SharedSettings(this, "user_info");
+
 
         gson = new Gson();
 
@@ -211,32 +213,33 @@ public class ChatClientIO extends Service {
         Log.d(TAG, "socketinit");
         //메세지 받기
         //채팅방/앱 나감 or 채팅화면이 아님에 따라 변경하기/채팅방목록
+        //엑티비티 매니져 현재 최상단 스택의 위치를 알기위해 사용
+        ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
             String data = (String) args[0];
             ChattingModel chattingModel = gson.fromJson(data, ChattingModel.class);
             //현재 유저가 들어가 있는 채팅방 idx를 검사한다.
             int current_user_room = sharedSettings.get_something_int("current_room_idx");
-
-
+            String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
+            Log.d(TAG, "최상단 스택: " + topstack_name);
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
-            if (chattingModel.getRoom_idx() == current_user_room) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
+            if (chattingModel.getRoom_idx() == current_user_room && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
                 Log.d(TAG, "채팅방에 있어서 채팅창 업데이트");
                 Intent intent = new Intent("go_chatroom");
                 intent.putExtra("message", data);
                 LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
-
-
-
             }
-            //채팅방안에는 없지만 소켓이 연결되어있는 상태라면 노티피케이션을 뿌리도록 한다.
-            else if (socket.connected()) {
-                Log.d(TAG, "채팅방에 있지 않아 메시지 전송!");
+            //채팅방안에는 없지만 소켓이 연결되어있고 채팅목록을 보고있는 상태라면 채팅방 목록 업데이트
+            else if ( is_chatroom && socket.connected() ) {
+                Log.d(TAG, "채팅방목록업데이트");
                 //노티피케이션 생성해서 전송
+
+
+                //메시지를 받은 채팅방안에는 없지만 소켓이 연결되어있고 채팅목록 , 채팅방에도 없다면 노티피케이션
+            } else if (!is_chatroom && socket.connected()) {
+                Log.d(TAG, "노티피케이션주기");
                 notification.show_notification("ChattingActivity", chattingModel);
-
-            } else if (socket.connected()) {
-
             }
 
 

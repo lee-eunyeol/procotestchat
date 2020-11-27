@@ -158,8 +158,7 @@ public class ChattingActivity extends AppCompatActivity {
     //보낸채팅메세지 내용은 없어지도록 한다.
     public void send_message(View v) {
         Log.d(TAG,"메세지보내기버튼클릭");
-//        ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-//        Log.d(TAG, "현재 최상단 스택" +  mngr.getAppTasks().get(0).getTaskInfo().topActivity.toString());
+
         String message = chatting_text.getText().toString();
         List<Integer> read_people = new ArrayList<>();
         read_people.add(user_idx);  //자신은 읽은상태에서 바로 보내지도록 설정

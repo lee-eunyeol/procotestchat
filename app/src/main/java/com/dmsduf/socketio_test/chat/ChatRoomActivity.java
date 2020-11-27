@@ -5,11 +5,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 //
-//import com.github.nkzawa.socketio.client.IO;
-//import com.github.nkzawa.socketio.client.Socket;
+import static com.dmsduf.socketio_test.chat.ChatClientIO.is_chatroom;
 
 import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
@@ -20,24 +20,13 @@ import com.dmsduf.socketio_test.data_list.TagModel;
 import java.util.ArrayList;
 import java.util.List;
 
-//import io.socket.client.IO;
-//import io.socket.client.Socket;
-//import io.socket.emitter.Emitter;
+
 
 public class ChatRoomActivity extends AppCompatActivity {
-    EditText nickname;
-    EditText room_name;
+
     SharedSettings sharedSettings;
 
-//    String URL = "";
-//    Socket socket;
-//    {
-//        try{
-//            socket = IO.socket(URL);
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-//    }
+
     RecyclerView recyclerView;
     ChatRoomAdapter chatRoomAdapter;
     @Override
@@ -57,9 +46,18 @@ public class ChatRoomActivity extends AppCompatActivity {
 
 
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        is_chatroom = false;
 
+    }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        is_chatroom = true;
+    }
 
     public void chat(View view){
     }
