@@ -44,8 +44,9 @@ public class ChatClientIO extends Service {
 
     String TAG = "client-io_service";
     String S2C = "server_to_client";
-    String url_local = "http://192.168.56.1:5000";
+    String url_local = "http://192.168.56.1:3001";
     String url_EY = "https://15.165.252.235:3001";
+    String url_iwinv =  "http://49.247.214.168:3001";
     Notification_EY notification;
     SharedSettings sharedSettings;
     public static Gson gson;
