@@ -44,7 +44,7 @@ public class server_connect {
     String TAG = "서버 통신";
     Context context;
     //서버url
-    String url = "http://3.19.223.244/itChat/";
+    String url = "https://volae.ga/";
     Gson gson;
     //예를들어 내가 다른클래스에서 server_connect 클래스를 사용할때,
     //post형식으로 서버에 데이터를 전달 하기위해 사용하는 변수

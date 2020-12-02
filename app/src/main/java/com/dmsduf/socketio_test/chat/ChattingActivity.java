@@ -34,7 +34,9 @@ import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.ChattingUsersRead;
 import com.dmsduf.socketio_test.data_list.RoomModel;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,6 +90,7 @@ public class ChattingActivity extends AppCompatActivity {
     RoomModel roomModel;
     SharedSettings sharedSettings;
 
+
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,15 +106,21 @@ public class ChattingActivity extends AppCompatActivity {
 
 
         //채팅관련 브로드케스트리시버등록
+        //메시지를 받았을때
         LocalBroadcastManager.getInstance(this).registerReceiver(MessageReceiver, new IntentFilter("go_chatroom"));
+        //다른사람이 채팅방에 입장했을때
+        LocalBroadcastManager.getInstance(this).registerReceiver(joinroomReceiver, new IntentFilter("user_join"));
 
         chat_recyclerview = findViewById(R.id.chatting_recyclerview);
 
         //유저 idx함께 보내준다.
-        chat_data = new ArrayList<>();
+        //저장되어 있던 채팅데이터를 받아온다.
+        Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+         ArrayList<ChattingModel> chat_data= gson.fromJson(sharedSettings.get_something_string("room_idx"+room_idx),type);
+
 
         //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
-        RoomModel roomModel = new RoomModel(1,1,"일반",2);
+        RoomModel roomModel = new RoomModel(1,1,"일반",3);
         ChattingAdapter = new ChattingAdapter(this,chat_data,user_idx,roomModel);
         chat_recyclerview.setAdapter(ChattingAdapter);
         chat_recyclerview.setLayoutManager(new LinearLayoutManager(this));
@@ -161,24 +170,25 @@ public class ChattingActivity extends AppCompatActivity {
         Log.d(TAG,"메세지보내기버튼클릭");
 
         String message = chatting_text.getText().toString();
-        List<Integer> read_people = new ArrayList<>();
-        read_people.add(user_idx);  //자신은 읽은상태에서 바로 보내지도록 설정
+//        List<Integer> read_people = new ArrayList<>();
+//        read_people.add(user_idx);  //자신은 읽은상태에서 바로 보내지도록 설정
         long send_timemills = System.currentTimeMillis();
         Date mReDate = new Date(send_timemills);
         SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String formatDate = mFormat.format(mReDate);
-        ChattingModel ChattingModel = new ChattingModel(room_idx,user_idx,"채팅"+"[pending]",nickname,message,formatDate,read_people,send_timemills);
+        //임시 채팅생성
+        ChattingModel ChattingModel = new ChattingModel(999999,room_idx,user_idx,"채팅"+"[pending]",1,nickname,message,formatDate,send_timemills);
         ChatClientIO.emit_socket("send_message",gson.toJson(ChattingModel), new Ack() {
             @Override
             public void call(Object... args) {
                 //args[0]:콜백내용  args[1]:서버에서 보낸메시지
                 Log.d(TAG,"[callback]"+args[0]+"/"+args[1]);
-                Log.d(TAG,"[callback]"+args[2]);
+//                Log.d(TAG,"[callback]"+args[2]);
                 switch (String.valueOf(args[0])){
                     case "[success]메세지보내기" :   //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면 채팅메세지를 업데이트
                         ChattingModel chattingModel = gson.fromJson(args[1].toString(),ChattingModel.class);
-                        ChattingUsersRead chattingUsersRead = gson.fromJson(args[2].toString(),ChattingUsersRead.class);
-                        Log.d(TAG,chattingUsersRead.getRead_items().size()+"사이즈");
+//                        ChattingUsersRead chattingUsersRead = gson.fromJson(args[2].toString(),ChattingUsersRead.class);
+//                        Log.d(TAG,chattingUsersRead.getRead_items().size()+"사이즈");
                         ChattingAdapter.set_message_success(chattingModel);
                         break;
                     case "[server_error]메세지보내기":
@@ -207,6 +217,16 @@ public class ChattingActivity extends AppCompatActivity {
             Log.d("리시버", "메세지 받음" + msg);
             ChattingModel ChattingModel = gson.fromJson(msg, ChattingModel.class);
             ChattingAdapter.add_message(ChattingModel);
+
+
+        }};
+    //##메세지를 받았을떄
+    private BroadcastReceiver joinroomReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int read_last_idx = Integer.parseInt(intent.getStringExtra("read_last_idx"));
+            Log.d("리시버", "이 유저가 가장 마시막읽은메시지" + read_last_idx);
+            ChattingAdapter.change_message_user_in(read_last_idx);
 
 
         }};

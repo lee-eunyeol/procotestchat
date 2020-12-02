@@ -224,6 +224,7 @@ public class ChatClientIO extends Service {
             int current_user_room = sharedSettings.get_something_int("current_room_idx");
             String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
             Log.d(TAG, "최상단 스택: " + topstack_name);
+
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
             if (chattingModel.getRoom_idx() == current_user_room && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
                 Log.d(TAG, "채팅방에 있어서 채팅창 업데이트");
@@ -245,6 +246,16 @@ public class ChatClientIO extends Service {
 
 
         });
+        //다른사람이 채팅방에 참여했다는 알림을 준다.
+        socket.on(S2C + "user_in_room", args -> {
+            Intent intent = new Intent("user_join");
+            //가장 최근에 받은 메시지 idx를 보내기
+            intent.putExtra("read_last_idx", args[0].toString());
+            LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
+
+
+        });
+
     }
 
     public static void emit_socket(String guide, Object object, Ack ack) {
@@ -258,7 +269,7 @@ public class ChatClientIO extends Service {
             case "user_logout":
                 socket.emit(C2S + "user_logout", object);
             case "join_room":
-                socket.emit(C2S + "join_room", object);
+                socket.emit(C2S + "join_room", object,ack);
                 break;
 
             case "leave_room":

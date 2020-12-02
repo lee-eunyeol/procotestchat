@@ -2,19 +2,49 @@ package com.dmsduf.socketio_test.data_list;
 
 import android.util.Log;
 
-import androidx.core.widget.ContentLoadingProgressBar;
-
-import java.util.List;
-
 public class ChattingModel {
+    int idx;
     int room_idx; //참여중인 방
     int user_idx; //보낸사람 idx
-    String type;
-    List<Integer> read_people;
+    String kinds;  //채팅메시지종류
+    int read_count;   //읽은 개수
     String TAG = "ChattingModel";
+    String nickname; //보낸사람 닉네임
+    String content; //메세지내용
+
+    public ChattingModel(int idx,int room_idx, int user_idx, String kinds, int read_count,  String nickname, String content, String created_at, Long front_created_at) {
+        this.idx = idx;
+        this.room_idx = room_idx;
+        this.user_idx = user_idx;
+        this.kinds = kinds;
+        this.read_count = read_count;
+
+        this.nickname = nickname;
+        this.content = content;
+        this.created_at = created_at;
+        this.front_created_at = front_created_at;
+    }
+
+    public int getIdx() {
+        return idx;
+    }
+
+    public void setIdx(int idx) {
+        this.idx = idx;
+    }
+
+    String created_at;  //서버에서 보낸 시간
+    Long front_created_at;  //프론트에서 실제로 보낸 시간
+
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
 
 
-    Long front_time;  //프론트에서 실제로 보낸 시간
     public int getRoom_name() {
         return room_idx;
     }
@@ -39,31 +69,25 @@ public class ChattingModel {
         this.nickname = nickname;
     }
 
-    public String getMessage() {
-        return message;
+    public String getContent() {
+        return content;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getTime() {
-        return time;
+
+    public Integer getRead_count() {
+        return read_count;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setRead_count(int read_count) {
+        this.read_count = read_count;
     }
+    public void setRead_count_plus(){
+        this.read_count = this.read_count+1;
 
-    String nickname; //보낸사람 닉네임
-    String message; //메세지내용
-
-    public List<Integer> getRead_people() {
-        return read_people;
-    }
-
-    public void setRead_people(List<Integer> read_people) {
-        this.read_people = read_people;
     }
 
     public int getRoom_idx() {
@@ -74,44 +98,35 @@ public class ChattingModel {
         this.room_idx = room_idx;
     }
 
-    public String getType() {
-        return type;
+    public String getKinds() {
+        return kinds;
     }
 
-    public void setType(String type) {
-        this.type =type;
+    public void setKinds(String kinds) {
+        this.kinds = kinds;
     }
     public void set_pendingType(String type) {
-        this.type = this.type+type;
+        this.kinds = this.kinds +type;
     }
     public void remove_pendingType(){
-        this.type = this.type.replace("[pending]","");
-        Log.d(TAG,this.type+"[remove_pendingType]");
+        this.kinds = this.kinds.replace("[pending]","");
+        Log.d(TAG,this.kinds +"[remove_pendingType]");
     }
     public void add_errorType(){
-        this.type = this.type.replace("[pending]","[error]");
-        Log.d(TAG,this.type+"[add_errorType]");
+        this.kinds = this.kinds.replace("[pending]","[error]");
+        Log.d(TAG,this.kinds +"[add_errorType]");
     }
 
-    public Long getFront_time() {
-        return front_time;
+    public Long getFront_created_at() {
+        return front_created_at;
     }
 
-    public void setFront_time(Long front_time) {
-        this.front_time = front_time;
+    public void setFront_created_at(Long front_created_at) {
+        this.front_created_at = front_created_at;
     }
 
-    public ChattingModel(int room_idx, int user_idx, String type, String nickname, String message, String time, List<Integer> read_people, Long front_time) {
-        this.room_idx = room_idx;
-        this.user_idx = user_idx;
-        this.type = type;
-        this.nickname = nickname;
-        this.message = message;
-        this.time = time;
-        this.read_people = read_people;
-        this.front_time = front_time;
-    }
 
-    String time; //보낸시간
+
+
 
 }

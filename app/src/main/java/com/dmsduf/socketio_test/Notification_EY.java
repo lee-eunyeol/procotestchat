@@ -41,7 +41,7 @@ public class Notification_EY {
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setWhen(System.currentTimeMillis())
                         .setContentTitle("메세지가 왔습니다.")
-                        .setContentText(chattingModel.getNickname() + ":" +chattingModel.getMessage())
+                        .setContentText(chattingModel.getNickname() + ":" +chattingModel.getContent())
 //                        .setSubText("(방제목: " + msgs[4] + ")")
                         .setContentInfo("INFO")
                         .setContentIntent(pending_chattingroom)

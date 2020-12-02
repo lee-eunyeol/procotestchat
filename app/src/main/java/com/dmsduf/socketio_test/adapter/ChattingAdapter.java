@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
+import com.dmsduf.socketio_test.data_list.ChattingUsersRead;
 import com.dmsduf.socketio_test.data_list.RoomModel;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     final static int my_chat = 1;
     final static int opponent_chat = 2;
     final static int speaker = 3;
-
+    ChattingUsersRead chattingUsersRead;
     String TAG = "채팅어댑터";
     int my_idx;
     Handler handler;
@@ -44,27 +45,44 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     //성공적으로 메세지를 보냈을 경우 해당하는 메세지를 보냈던 정확한 시간(currenttimemills)을 찾아서 업데이트 시켜준다.
     public void set_message_success(ChattingModel server_msg) {
-        for (int i = 0; i < chat_data.size(); i++) {
-
-            if (chat_data.get(i).getFront_time() - server_msg.getFront_time() == 0) {  //프론트가 보냈던 시간과 맞는 데이터를 찾은 후 메시지를 바꾼다.
-                chat_data.set(i,server_msg);
+        for (int i = chat_data.size(); i >0; i--) {
+            Log.d(TAG,"set_message_success메시지찾기");
+            if (chat_data.get(i-1).getFront_created_at() - server_msg.getFront_created_at() == 0) {  //프론트가 보냈던 시간과 맞는 데이터를 찾은 후 메시지를 바꾼다.
+                chat_data.set(i-1,server_msg);
                 notify_with_handler();
                 break;
             }
-
         }
-
-
     }
+
+    //중간에 들어온 사람이 가장 최근읽은 메시지를 기준으로 , 그 이후 에 나온 메시지를 찾아 read_count횟수를 1늘린다.
+    public void change_message_user_in(int read_last_idx){
+        for(int i=chat_data.size();i>0;i--){
+            int message_idx =  chat_data.get(i-1).getIdx();
+            Log.d(TAG,"change_message_user_in / idx : "+message_idx +'-'+read_last_idx);
+            if(message_idx<=read_last_idx){
+                Log.d(TAG,"change_message_user_in / 메시지 업데이트 다했음 idx : "+i+"번째");
+            break;
+            }
+            //읽음횟수 1추가
+            chat_data.get(i-1).setRead_count_plus();
+            Log.d(TAG,"change_message_user_in /메시지내용 :  "+chat_data.get(i-1).getContent());
+        }
+        notify_with_handler();
+    }
+
 
     //메세지보내기가 실패했을 경우 실패 메세지를 띄운다.
     public void set_message_error(Long time) {
-        for (int i = 0; i < chat_data.size(); i++) {
-            if (chat_data.get(i).getFront_time() - time == 0) {
-                chat_data.get(i).add_errorType();
-                notify_with_handler();
-                break;
-            }
+            for (int i = chat_data.size(); i >0; i--) {
+                Log.d(TAG,"set_message_success메시지찾기");
+                if (chat_data.get(i-1).getFront_created_at() - time == 0) {  //프론트가 보냈던 시간과 맞는 데이터를 찾은 후 메시지를 바꾼다.
+                    chat_data.get(i).add_errorType();
+                    notify_with_handler();
+                    break;
+                }
+
+
         }
 
 
@@ -139,19 +157,19 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         int current_peoples = roomModel.getRoom_people_count();
-        int read_users = chat_data.get(position).getRead_people().size();
+        int read_users = chat_data.get(position).getRead_count();
         int none_read_count = current_peoples - read_users;
 
         switch (holder.getItemViewType()) {
 
             case my_chat:
-                ((my_chat_view_holder) holder).chat.setText(chat_data.get(position).getMessage());
-                ((my_chat_view_holder) holder).time.setText(chat_data.get(position).getTime());
+                ((my_chat_view_holder) holder).chat.setText(chat_data.get(position).getContent());
+                ((my_chat_view_holder) holder).time.setText(chat_data.get(position).getCreated_at());
                 //읽음처리
-                if (chat_data.get(position).getType().contains("[pending]")) {
+                if (chat_data.get(position).getKinds().contains("[pending]")) {
                     ((my_chat_view_holder) holder).count.setText("대기중");
 
-                } else if (chat_data.get(position).getType().contains("[error]")) {
+                } else if (chat_data.get(position).getKinds().contains("[error]")) {
                     ((my_chat_view_holder) holder).count.setText("에러");
                 } else {
                     if (none_read_count == 0) {
@@ -164,11 +182,11 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 break;
             case opponent_chat:
-                ((op_chat_view_holder) holder).chat.setText(chat_data.get(position).getMessage());
+                ((op_chat_view_holder) holder).chat.setText(chat_data.get(position).getContent());
                 ((op_chat_view_holder) holder).recycler_op_name.setText(chat_data.get(position).getNickname());
 
                 //읽음처리
-                if (chat_data.get(position).getType().contains("[pending]")) {
+                if (chat_data.get(position).getKinds().contains("[pending]")) {
                     Log.d(TAG, "소켓연결이 안되서 메세지 안보내짐");
                     ((op_chat_view_holder) holder).count.setText("대기중");
 
@@ -179,28 +197,28 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         ((op_chat_view_holder) holder).count.setText(String.valueOf(none_read_count));
                     }
                 }
-                ((op_chat_view_holder) holder).time.setText(chat_data.get(position).getTime());
+                ((op_chat_view_holder) holder).time.setText(chat_data.get(position).getCreated_at());
                 break;
 
             case speaker:
-                if (chat_data.get(position).getMessage().contains("추방되셨습니다")) {
+                if (chat_data.get(position).getContent().contains("추방되셨습니다")) {
                     //추방사유가 적혀있을떄 가져옴
-                    String message = chat_data.get(position).getMessage().split("추방되셨습니다")[0];
-                    String why = chat_data.get(position).getMessage().split("추방되셨습니다")[1];
+                    String message = chat_data.get(position).getContent().split("추방되셨습니다")[0];
+                    String why = chat_data.get(position).getContent().split("추방되셨습니다")[1];
                     ((speaker_view_holer) holder).speaker_text.setText(message + "추방되셨습니다.");
                     ((speaker_view_holer) holder).exit_layout.setVisibility(View.VISIBLE);
                     ((speaker_view_holer) holder).why_texe.setText("추방사유");
                     ((speaker_view_holer) holder).exit_why.setText(why);
-                } else if (chat_data.get(position).getMessage().contains("수정 되었습니다.")) {
+                } else if (chat_data.get(position).getContent().contains("수정 되었습니다.")) {
 
-                    String[] why = chat_data.get(position).getMessage().split("되었습니다.")[1].split("!!");
+                    String[] why = chat_data.get(position).getContent().split("되었습니다.")[1].split("!!");
                     ((speaker_view_holer) holder).speaker_text.setText("방 내용이 수정되었습니다.");
                     ((speaker_view_holer) holder).exit_layout.setVisibility(View.VISIBLE);
                     ((speaker_view_holer) holder).why_texe.setText("수정 내역");
                     ((speaker_view_holer) holder).exit_why.setText("제목: " + why[0] + "\n관련 언어 및 분야: " + why[2] + "\n최대인원 수: " + why[1]);
                 } else {
                     ((speaker_view_holer) holder).exit_layout.setVisibility(View.GONE);
-                    ((speaker_view_holer) holder).speaker_text.setText(chat_data.get(position).getMessage());
+                    ((speaker_view_holer) holder).speaker_text.setText(chat_data.get(position).getContent());
                 }
                 break;
         }
