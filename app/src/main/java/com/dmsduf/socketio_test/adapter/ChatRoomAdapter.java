@@ -2,6 +2,7 @@ package com.dmsduf.socketio_test.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.chat.ChattingActivity;
 import com.dmsduf.socketio_test.data_list.ChatRoomModel;
+import com.dmsduf.socketio_test.data_list.ChattingModel;
 
 import java.util.List;
 
@@ -28,10 +30,24 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     List<ChatRoomModel> chatRoomModel;
     Context context;
     String TAG = "ChatRoomAdapter";
+    final Runnable sr= new Runnable() {
+        public void run() {
+            notifyDataSetChanged();
+        }
+
+    };
+    //리사이클러뷰 업데이트 오류떄문에 쓴것.  https://gogorchg.tistory.com/entry/Android-Cannot-call-this-method-while-RecyclerView-is-computing-a-layout-or-scrolling
+    public void notify_with_handler(){
+        handler.post(sr);
+    }
     public ChatRoomAdapter( Context context,List<ChatRoomModel> chatRoomModel) {
         this.chatRoomModel = chatRoomModel;
         this.context = context;
+        this.handler = new Handler();
     }
+    Handler handler;
+
+
 
     @NonNull
     @Override
@@ -82,7 +98,19 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ((view_holder)holder).time.setText(chatRoomModel.get(position).getTime());
 
     }
+    public void update_new_message(ChattingModel chattingModel){
+        for (int i= 0 ; i<chatRoomModel.size();i++){
+            Log.d(TAG,"바"+chatRoomModel.get(i).getChatroom_idx()+"/"+chattingModel.getRoom_idx());
+            if (chatRoomModel.get(i).getChatroom_idx()==chattingModel.getRoom_idx()){
+                Log.d(TAG,"바뀌어야할 채팅방 찾음");
+                chatRoomModel.get(i).setLast_message(chattingModel.getContent());
+                chatRoomModel.get(i).setTime(chattingModel.getCreated_at());
 
+                break;
+            }
+        }
+        notify_with_handler();
+    }
     @Override
     public int getItemCount() {
         return chatRoomModel.size();

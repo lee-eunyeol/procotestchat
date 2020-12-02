@@ -107,7 +107,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         //채팅관련 브로드케스트리시버등록
         //메시지를 받았을때
-        LocalBroadcastManager.getInstance(this).registerReceiver(MessageReceiver, new IntentFilter("go_chatroom"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(MessageReceiver, new IntentFilter("go_chatingroom"));
         //다른사람이 채팅방에 입장했을때
         LocalBroadcastManager.getInstance(this).registerReceiver(joinroomReceiver, new IntentFilter("user_join"));
 
@@ -241,14 +241,16 @@ public class ChattingActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //채팅방 알람설정메소드
-        //리시버에서 채팅을 받았을떄 이 recive_position에 따라서 채팅방을 업데이트 할지 채팅방 목록을 업데이트 할지 노티피케이션을띄울지 정할수 있게 구분자를 줌
-        //onstart에서 chatting이라는 값을 줘서 리시버에서는 채팅방을 업데이트 할수 있도록함
+        ChatClientIO.emit_socket("join_room", room_idx, new Ack() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG,args[0].toString());
 
-//채팅방에 접속하자마자 알림 이걸바인드서비스에서 해줘야할것같은데
-        Log.d(TAG, "소켓상태");
-        //네비게이션 드로어 업데이트
-        get_user_data();
+                sharedSettings.set_something_string("room_idx"+room_idx,args[0].toString());
+                //입장하는 순간 방 idx를 저장한다.
+                sharedSettings.set_something_int("current_room_idx",room_idx);
+            }
+        });
     }
     @Override
     protected void onPause() {
@@ -258,17 +260,18 @@ public class ChattingActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
         ChatClientIO.emit_socket("leave_room", room_idx, new Ack() {
             @Override
             public void call(Object... args) {
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
 
     }
 

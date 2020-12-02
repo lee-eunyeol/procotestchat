@@ -124,6 +124,15 @@ public class MainActivity extends ActivityGroup {
 
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //로그아웃
+        Intent intent = new Intent(this, ChatClientIO.class);
+        this.stopService(intent);
+    }
+
     //TODO FCM
 //파이어베이스에 내토큰을 저장한다
     String my_key;

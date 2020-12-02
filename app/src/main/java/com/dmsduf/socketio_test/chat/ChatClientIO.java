@@ -228,14 +228,16 @@ public class ChatClientIO extends Service {
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
             if (chattingModel.getRoom_idx() == current_user_room && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
                 Log.d(TAG, "채팅방에 있어서 채팅창 업데이트");
-                Intent intent = new Intent("go_chatroom");
+                Intent intent = new Intent("go_chatingroom");
                 intent.putExtra("message", data);
                 LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
             }
             //채팅방안에는 없지만 소켓이 연결되어있고 채팅목록을 보고있는 상태라면 채팅방 목록 업데이트
             else if ( is_chatroom && socket.connected() ) {
                 Log.d(TAG, "채팅방목록업데이트");
-                //노티피케이션 생성해서 전송
+                Intent intent = new Intent("go_chatroom");
+                intent.putExtra("message", data);
+                LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
 
 
                 //메시지를 받은 채팅방안에는 없지만 소켓이 연결되어있고 채팅목록 , 채팅방에도 없다면 노티피케이션
