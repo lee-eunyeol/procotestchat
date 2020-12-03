@@ -16,7 +16,9 @@ import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.UserModel;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -230,6 +232,10 @@ public class ChatClientIO extends Service {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
             String data = (String) args[0];
             ChattingModel chattingModel = gson.fromJson(data, ChattingModel.class);
+
+            //새로 받은 메시지를 쉐어드에 추가한다.
+            save_chat_data(chattingModel);
+
             //현재 유저가 들어가 있는 채팅방 idx를 검사한다.
             int current_user_room = sharedSettings.get_something_int("current_room_idx");
             String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
@@ -267,6 +273,24 @@ public class ChatClientIO extends Service {
 
 
         });
+
+    }
+    //메시지를 받았을때 , 채팅 메시지를 알맞게 저장하는 메소드
+    private void save_chat_data(ChattingModel chattingModel) {
+        int room_idx = chattingModel.getRoom_idx();
+        Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+        ArrayList<ChattingModel> chat_datas = new ArrayList<>();
+        //그 방에대한 메시지 내역이 저장되어 있는경우
+        if(!sharedSettings.get_something_string("room_idx"+room_idx).equals("없음")) {
+            chat_datas = gson.fromJson(sharedSettings.get_something_string("room_idx" + room_idx), type);
+            chat_datas.add(chattingModel);
+        }
+        //쉐어드에 저장된 메시지가 전혀없을경우 ( 첫메시지일경우)
+        else{
+            chat_datas.add(chattingModel);
+        }
+        //새로 온 메시지 추가
+        sharedSettings.set_something_string("room_idx" + room_idx,gson.toJson(chat_datas));
 
     }
 

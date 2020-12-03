@@ -234,19 +234,25 @@ public class ChattingActivity extends AppCompatActivity {
 
 
 public void join_room_to_server(){
+    //소켓이 연결되어있을경우에만 업데이트
+    Log.d("join_room",socket.connected()+"");
 
-    ChatClientIO.emit_socket("join_room", room_idx, new Ack() {
-        @Override
-        public void call(Object... args) {
-            Log.d(TAG,args[0].toString());
-            Type type = new TypeToken<List<ChattingModel>>() {}.getType();
-            sharedSettings.set_something_string("room_idx"+room_idx,args[0].toString());
-            ArrayList<ChattingModel> chat_data= gson.fromJson(args[0].toString(),type);
-            ChattingAdapter.setChat_data(chat_data);
-            //입장하는 순간 방 idx를 저장한다.
-            sharedSettings.set_something_int("current_room_idx",room_idx);
-        }
-    });
+    if(socket.connected()) {
+        ChatClientIO.emit_socket("join_room", room_idx, new Ack() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, args[0].toString());
+                Type type = new TypeToken<List<ChattingModel>>() {
+                }.getType();
+                sharedSettings.set_something_string("room_idx" + room_idx, args[0].toString());
+                ArrayList<ChattingModel> chat_data = gson.fromJson(args[0].toString(), type);
+                ChattingAdapter.setChat_data(chat_data);
+                //입장하는 순간 방 idx를 저장한다.
+                sharedSettings.set_something_int("current_room_idx", room_idx);
+            }
+
+        });
+    }
 }
     //생명주기-----------------------
     @Override
