@@ -184,6 +184,16 @@ public class ChatClientIO extends Service {
 
                     }
                 });
+                Log.d(TAG,is_chatroom+"연결됐을때 채팅방에있는지?");
+                //만약 어떤 채팅방에 들어온 상태에서 소켓연결이 됬을경우 방 참여도 해준다.
+                ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
+                if(topstack_name.equals(".chat.ChattingActivity")){
+
+                    Intent intent = new Intent("socket_connected");
+                    LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
+
+                }
             }
         });
         socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {

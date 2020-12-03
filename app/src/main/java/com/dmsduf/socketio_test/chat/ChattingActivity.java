@@ -111,6 +111,9 @@ public class ChattingActivity extends AppCompatActivity {
         //다른사람이 채팅방에 입장했을때
         LocalBroadcastManager.getInstance(this).registerReceiver(joinroomReceiver, new IntentFilter("user_join"));
 
+        //데이터연결이 끊겼다가 다시 돌아왔을때
+        LocalBroadcastManager.getInstance(this).registerReceiver(connectReceiver, new IntentFilter("socket_connected"));
+
         chat_recyclerview = findViewById(R.id.chatting_recyclerview);
 
 
@@ -220,9 +223,31 @@ public class ChattingActivity extends AppCompatActivity {
 
 
         }};
+    //##메세지를 받았을떄
+    private BroadcastReceiver connectReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            join_room_to_server();
 
 
+        }};
 
+
+public void join_room_to_server(){
+
+    ChatClientIO.emit_socket("join_room", room_idx, new Ack() {
+        @Override
+        public void call(Object... args) {
+            Log.d(TAG,args[0].toString());
+            Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+            sharedSettings.set_something_string("room_idx"+room_idx,args[0].toString());
+            ArrayList<ChattingModel> chat_data= gson.fromJson(args[0].toString(),type);
+            ChattingAdapter.setChat_data(chat_data);
+            //입장하는 순간 방 idx를 저장한다.
+            sharedSettings.set_something_int("current_room_idx",room_idx);
+        }
+    });
+}
     //생명주기-----------------------
     @Override
     protected void onResume() {
@@ -249,18 +274,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
         //통신을 통해서 추가적으로 데이터 전체를 가져온다.
-        ChatClientIO.emit_socket("join_room", room_idx, new Ack() {
-            @Override
-            public void call(Object... args) {
-                Log.d(TAG+"dkd",args[0].toString());
-
-                sharedSettings.set_something_string("room_idx"+room_idx,args[0].toString());
-                ArrayList<ChattingModel> chat_data= gson.fromJson(args[0].toString(),type);
-                ChattingAdapter.setChat_data(chat_data);
-                //입장하는 순간 방 idx를 저장한다.
-                sharedSettings.set_something_int("current_room_idx",room_idx);
-            }
-        });
+        join_room_to_server();
     }
     @Override
     protected void onPause() {
