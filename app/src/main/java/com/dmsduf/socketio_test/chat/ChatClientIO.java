@@ -271,6 +271,7 @@ public class ChatClientIO extends Service {
             case "user_logout":
                 socket.emit(C2S + "user_logout", object);
             case "join_room":
+                Log.d(TAG,"joinroom");
                 socket.emit(C2S + "join_room", object,ack);
                 break;
 

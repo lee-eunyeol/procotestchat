@@ -98,12 +98,12 @@ public class ChattingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chatting_room);
         //유저 정보 들어간 쉐어드
         sharedSettings = new SharedSettings(this,"user_info");
-        Intent intent = getIntent();
+
+        //TODO 여기 방 번호 가져오는 부분 문제 있을 수 있음.
         nickname = sharedSettings.get_something_string("user_nickname");
-        room_idx = intent.getIntExtra("room_idx",3853432);
+        room_idx = sharedSettings.get_something_int("current_room_idx");
         user_idx = sharedSettings.get_something_int("user_idx");
         gson = new Gson();
-
 
         //채팅관련 브로드케스트리시버등록
         //메시지를 받았을때
@@ -113,17 +113,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         chat_recyclerview = findViewById(R.id.chatting_recyclerview);
 
-        //유저 idx함께 보내준다.
-        //저장되어 있던 채팅데이터를 받아온다.
-        Type type = new TypeToken<List<ChattingModel>>() {}.getType();
-         ArrayList<ChattingModel> chat_data= gson.fromJson(sharedSettings.get_something_string("room_idx"+room_idx),type);
 
-
-        //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
-        RoomModel roomModel = new RoomModel(1,1,"일반",3);
-        ChattingAdapter = new ChattingAdapter(this,chat_data,user_idx,roomModel);
-        chat_recyclerview.setAdapter(ChattingAdapter);
-        chat_recyclerview.setLayoutManager(new LinearLayoutManager(this));
 
         //체크박스 세팅
         chat_alarm_checkbox = findViewById(R.id.alarm_checkbox_chatting);
@@ -241,12 +231,32 @@ public class ChattingActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        //유저 idx함께 보내준다.
+        //저장되어 있던 채팅데이터 및 채팅방 데이터를 받아온다.
+        Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+
+        if(!sharedSettings.get_something_string("room_idx"+room_idx).equals("없음")) {
+            chat_data = gson.fromJson(sharedSettings.get_something_string("room_idx" + room_idx), type);
+        }
+        else{
+            chat_data = new ArrayList<>();
+        }
+        //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
+        RoomModel roomModel = new RoomModel(1,1,"일반",3);
+        ChattingAdapter = new ChattingAdapter(this,chat_data,user_idx,roomModel);
+        chat_recyclerview.setAdapter(ChattingAdapter);
+        chat_recyclerview.setLayoutManager(new LinearLayoutManager(this));
+
+        //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
+        //통신을 통해서 추가적으로 데이터 전체를 가져온다.
         ChatClientIO.emit_socket("join_room", room_idx, new Ack() {
             @Override
             public void call(Object... args) {
-                Log.d(TAG,args[0].toString());
+                Log.d(TAG+"dkd",args[0].toString());
 
                 sharedSettings.set_something_string("room_idx"+room_idx,args[0].toString());
+                ArrayList<ChattingModel> chat_data= gson.fromJson(args[0].toString(),type);
+                ChattingAdapter.setChat_data(chat_data);
                 //입장하는 순간 방 idx를 저장한다.
                 sharedSettings.set_something_int("current_room_idx",room_idx);
             }

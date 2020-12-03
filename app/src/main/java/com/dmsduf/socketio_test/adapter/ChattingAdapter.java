@@ -37,6 +37,15 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     };
 
+    public List<ChattingModel> getChat_data() {
+        return chat_data;
+    }
+    //통신후 새로받은 채팅메시지  업데이트 할떄 사용
+    public void setChat_data(List<ChattingModel> chat_data) {
+        this.chat_data = chat_data;
+        notify_with_handler();
+    }
+
     //리사이클러뷰 업데이트 오류떄문에 쓴것.  https://gogorchg.tistory.com/entry/Android-Cannot-call-this-method-while-RecyclerView-is-computing-a-layout-or-scrolling
     public void notify_with_handler(){
         handler.post(r);
@@ -81,11 +90,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     notify_with_handler();
                     break;
                 }
-
-
         }
-
-
     }
 
     //내가 메세지를 받았을 경우 : 시간을 보낸 정확한 시간을 가지고 키값에 넣는다.

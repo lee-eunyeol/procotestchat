@@ -68,28 +68,15 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onClick(View v) {
                 //소켓에 방번호 주어서 방 입장신호 emit하기
                 SharedSettings sharedSettings = new SharedSettings(context,"user_info");
-                emit_socket("join_room", chatRoomModel.get(position).getChatroom_idx(), new Ack() {
-                    @Override
-                    public void call(Object... args) {
-                        Log.d(TAG,args[0].toString());
 
-                        int room_idx = chatRoomModel.get(position).getChatroom_idx();
-                        sharedSettings.set_something_string("room_idx"+room_idx,args[0].toString());
-                        Intent intent  = new Intent(context, ChattingActivity.class);
-                        intent.putExtra("room_idx",room_idx);
+                int room_idx = chatRoomModel.get(position).getChatroom_idx();
+                //입장하는 순간 방 idx를 저장한다.
+                sharedSettings.set_something_int("current_room_idx",room_idx);
 
-                        context.startActivity(intent);
+                Intent intent  = new Intent(context, ChattingActivity.class);
+                context.startActivity(intent);
 
 
-                        //입장하는 순간 방 idx를 저장한다.
-                        sharedSettings.set_something_int("current_room_idx",room_idx);
-
-                    }
-
-                });
-                String nickname = sharedSettings.get_something_string("user_nickname");
-                int user_idx = sharedSettings.get_something_int("user_idx");
-                Toast.makeText(context, "입장한 방"+chatRoomModel.get(position).getChatroom_idx()+"\n닉네임: "+nickname+"\n유저번호: "+user_idx, Toast.LENGTH_SHORT).show();
 
             }
         });
