@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.dmsduf.socketio_test.AckWithTimeOut;
 import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.adapter.ChattingAdapter;
@@ -238,20 +239,25 @@ public void join_room_to_server(){
     Log.d("join_room",socket.connected()+"");
 
     if(socket.connected()) {
-        ChatClientIO.emit_socket("join_room", room_idx, new Ack() {
-            @Override
-            public void call(Object... args) {
-                Log.d(TAG, args[0].toString());
-                Type type = new TypeToken<List<ChattingModel>>() {
-                }.getType();
-                sharedSettings.set_something_string("room_idx" + room_idx, args[0].toString());
-                ArrayList<ChattingModel> chat_data = gson.fromJson(args[0].toString(), type);
-                ChattingAdapter.setChat_data(chat_data);
-                //입장하는 순간 방 idx를 저장한다.
-                sharedSettings.set_something_int("current_room_idx", room_idx);
-            }
-
-        });
+        ChatClientIO.emit_socket("join_room", room_idx,new AckWithTimeOut(1000){
+                    @Override
+                    public void call(Object... args) {
+                        if(args!=null){
+                            if(args[0].toString().equalsIgnoreCase("No Ack")){
+                                Log.d("ACK_SOCKET","AckWithTimeOut : "+ args[0].toString());
+                            }else{
+                                Log.d(TAG, args[0].toString());
+                                Type type = new TypeToken<List<ChattingModel>>() {
+                                }.getType();
+                                sharedSettings.set_something_string("room_idx" + room_idx, args[0].toString());
+                                ArrayList<ChattingModel> chat_data = gson.fromJson(args[0].toString(), type);
+                                ChattingAdapter.setChat_data(chat_data);
+                                //입장하는 순간 방 idx를 저장한다.
+                                sharedSettings.set_something_int("current_room_idx", room_idx);
+                            }}
+                    }
+                }
+        );
     }
 }
     //생명주기-----------------------

@@ -47,4 +47,8 @@ public class SharedSettings {
         editor.putInt(name,item);
         editor.commit();
     }
+    public void clear(){
+        editor.clear();
+        editor.commit();
+    }
 }

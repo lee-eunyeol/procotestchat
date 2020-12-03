@@ -162,7 +162,6 @@ public class ChatClientIO extends Service {
         IO.setDefaultOkHttpWebSocketFactory(okHttpClient);
         IO.setDefaultOkHttpCallFactory(okHttpClient);
         IO.Options opts = new IO.Options();
-        opts.transports = new String[]{WebSocket.NAME};
         try {
             socket = IO.socket(url_local, opts);
         } catch (URISyntaxException e) {
@@ -281,7 +280,9 @@ public class ChatClientIO extends Service {
         Type type = new TypeToken<List<ChattingModel>>() {}.getType();
         ArrayList<ChattingModel> chat_datas = new ArrayList<>();
         //그 방에대한 메시지 내역이 저장되어 있는경우
+
         if(!sharedSettings.get_something_string("room_idx"+room_idx).equals("없음")) {
+            Log.d(TAG,"받은거"+sharedSettings.get_something_string("room_idx" + room_idx));
             chat_datas = gson.fromJson(sharedSettings.get_something_string("room_idx" + room_idx), type);
             chat_datas.add(chattingModel);
         }
