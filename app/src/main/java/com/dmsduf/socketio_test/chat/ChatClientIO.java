@@ -4,9 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -181,7 +183,7 @@ public class ChatClientIO extends Service {
             public void call(Object... args) {
                 Log.d(TAG, "EVENT_CONNECT");
                 Log.d(TAG, "연결되었습니다!!");
-                emit_socket("user_login", gson.toJson(new UserModel(sharedSettings.get_something_string("user_nickname"), sharedSettings.get_something_int("user_idx"))), new Ack() {
+                emit_socket(ChatClientIO.this,"user_login", gson.toJson(new UserModel(sharedSettings.get_something_string("user_nickname"), sharedSettings.get_something_int("user_idx"))), new Ack() {
                     @Override
                     public void call(Object... args) {
 
@@ -277,6 +279,7 @@ public class ChatClientIO extends Service {
 
         });
 
+
     }
     //메시지를 받았을때 , 채팅 메시지를 알맞게 저장하는 메소드
     private void save_chat_data(ChattingModel chattingModel) {
@@ -298,39 +301,44 @@ public class ChatClientIO extends Service {
 
     }
 
-    public static void emit_socket(String guide, Object object, Ack ack) {
-        String C2S = "client_to_server";
-        String TAG = "socket.emit";
-        Log.d("socket.emit!", guide + "::" + object.toString());
-        switch (guide) {
-            case "user_login":
-                socket.emit(C2S + "user_login", object);
-                break;
-            case "user_logout":
-                socket.emit(C2S + "user_logout", object);
-            case "join_room":
-                Log.d(TAG,"joinroom");
-                socket.emit(C2S + "join_room", object,ack);
-                break;
+    public static void emit_socket(Context context, String guide, Object object, Ack ack) {
+        if (socket.connected()) {
+            String C2S = "client_to_server";
+            String TAG = "socket.emit";
+            Log.d("socket.emit!", guide + "::" + object.toString());
+            switch (guide) {
+                case "user_login":
+                    socket.emit(C2S + "user_login", object);
+                    break;
+                case "user_logout":
+                    socket.emit(C2S + "user_logout", object);
+                case "join_room":
+                    Log.d(TAG, "joinroom");
+                    socket.emit(C2S + "join_room", object, ack);
+                    break;
 
-            case "leave_room":
-                if (socket != null && socket.connected()) {
-                    socket.emit(C2S + "leave_room", object);
-                }
-                break;
-            case "send_message":
-                socket.emit(C2S + "message", object, ack);
-                break;
-            case "check_room":
-                socket.emit(C2S + "check_room", object);
-                break;
-            case "disconnect_socket":
-                if (socket != null && socket.connected()) {
+                case "leave_room":
+                    if (socket != null && socket.connected()) {
+                        socket.emit(C2S + "leave_room", object);
+                    }
+                    break;
+                case "send_message":
+                    socket.emit(C2S + "message", object, ack);
+                    break;
+                case "check_room":
+                    socket.emit(C2S + "check_room", object);
+                    break;
+                case "disconnect_socket":
+                    if (socket != null && socket.connected()) {
 //                    socket.emit(C2S + "leave_room", object);
-                    socket.disconnect();
-                    socket.close();
-                }
-                break;
+                        socket.disconnect();
+                        socket.close();
+                    }
+                    break;
+            }
+        }
+        else{
+            Toast.makeText(context, "소켓연결이 끊긴 상태 입니다.", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -20,7 +20,7 @@ public class FriendAcitvity extends AppCompatActivity {
     }
     public void chat_TO(View v){
 
-        ChatClientIO.emit_socket("check_room", gson.toJson(new UserModel(2, 5)), new Ack() {
+        ChatClientIO.emit_socket(FriendAcitvity.this,"check_room", gson.toJson(new UserModel(2, 5)), new Ack() {
             @Override
             public void call(Object... args) {
 

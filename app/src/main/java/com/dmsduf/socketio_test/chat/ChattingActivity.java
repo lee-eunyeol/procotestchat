@@ -173,7 +173,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         //임시 채팅생성
         ChattingModel ChattingModel = new ChattingModel(999999,room_idx,user_idx,"채팅"+"[pending]",String.valueOf(user_idx),nickname,message,formatDate,send_timemills);
-        ChatClientIO.emit_socket("send_message",gson.toJson(ChattingModel), new Ack() {
+        ChatClientIO.emit_socket(ChattingActivity.this,"send_message",gson.toJson(ChattingModel), new Ack() {
             @Override
             public void call(Object... args) {
                 //args[0]:콜백내용  args[1]:서버에서 보낸메시지
@@ -243,7 +243,7 @@ public void join_room_to_server(){
     Log.d("join_room",socket.connected()+"");
 
     if(socket.connected()) {
-        ChatClientIO.emit_socket("join_room", room_idx,new AckWithTimeOut(3000){
+        ChatClientIO.emit_socket(ChattingActivity.this,"join_room", room_idx,new AckWithTimeOut(3000){
                     @Override
                     public void call(Object... args) {
                         if(args!=null){
@@ -300,7 +300,7 @@ public void join_room_to_server(){
     @Override
     protected void onStop() {
         super.onStop();
-        ChatClientIO.emit_socket("leave_room", room_idx, new Ack() {
+        ChatClientIO.emit_socket(ChattingActivity.this,"leave_room", room_idx, new Ack() {
             @Override
             public void call(Object... args) {
 
