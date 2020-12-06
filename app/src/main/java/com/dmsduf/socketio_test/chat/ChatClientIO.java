@@ -66,6 +66,7 @@ public class ChatClientIO extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "oncreate 서비스");
+
     }
 
     @Override
@@ -86,6 +87,7 @@ public class ChatClientIO extends Service {
         notification = new Notification_EY(this);
         sharedSettings = new SharedSettings(this, "user_info");
 
+//        sharedSettings.clear();
 
         gson = new Gson();
 
@@ -266,8 +268,10 @@ public class ChatClientIO extends Service {
         //다른사람이 채팅방에 참여했다는 알림을 준다.
         socket.on(S2C + "user_in_room", args -> {
             Intent intent = new Intent("user_join");
+
             //가장 최근에 받은 메시지 idx를 보내기
             intent.putExtra("read_last_idx", args[0].toString());
+            intent.putExtra("user_idx", args[1].toString());
             LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
 
 
@@ -280,7 +284,6 @@ public class ChatClientIO extends Service {
         Type type = new TypeToken<List<ChattingModel>>() {}.getType();
         ArrayList<ChattingModel> chat_datas = new ArrayList<>();
         //그 방에대한 메시지 내역이 저장되어 있는경우
-
         if(!sharedSettings.get_something_string("room_idx"+room_idx).equals("없음")) {
             Log.d(TAG,"받은거"+sharedSettings.get_something_string("room_idx" + room_idx));
             chat_datas = gson.fromJson(sharedSettings.get_something_string("room_idx" + room_idx), type);

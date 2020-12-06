@@ -65,7 +65,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //중간에 들어온 사람이 가장 최근읽은 메시지를 기준으로 , 그 이후 에 나온 메시지를 찾아 read_count횟수를 1늘린다.
-    public void change_message_user_in(int read_last_idx){
+    public void change_message_user_in(int read_last_idx,int user_idx){
         for(int i=chat_data.size();i>0;i--){
             int message_idx =  chat_data.get(i-1).getIdx();
             Log.d(TAG,"change_message_user_in / idx : "+message_idx +'-'+read_last_idx);
@@ -74,7 +74,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             break;
             }
             //읽음횟수 1추가
-            chat_data.get(i-1).setRead_count_plus();
+            chat_data.get(i-1).setRead_count_plus(user_idx);
             Log.d(TAG,"change_message_user_in /메시지내용 :  "+chat_data.get(i-1).getContent());
         }
         notify_with_handler();
@@ -100,6 +100,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         chat_data.add(ChattingModel);
 
         notifyDataSetChanged();
+
 
     }
 
@@ -162,7 +163,8 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         int current_peoples = roomModel.getRoom_people_count();
-        int read_users = chat_data.get(position).getRead_count();
+        //읽은 사람들을 리스트형태로 변환 한다 ( 받는데이터 : 1,2,3,4 를 - > [1,2,3,4]로변환
+        int read_users = chat_data.get(position).getRead_users().split(",").length;
         int none_read_count = current_peoples - read_users;
 
         switch (holder.getItemViewType()) {

@@ -7,17 +7,17 @@ public class ChattingModel {
     int room_idx; //참여중인 방
     int user_idx; //보낸사람 idx
     String kinds;  //채팅메시지종류
-    int read_count;   //읽은 개수
+    String read_users;   //읽은 사람들
     String TAG = "ChattingModel";
     String nickname; //보낸사람 닉네임
     String content; //메세지내용
 
-    public ChattingModel(int idx,int room_idx, int user_idx, String kinds, int read_count,  String nickname, String content, String created_at, Long front_created_at) {
+    public ChattingModel(int idx, int room_idx, int user_idx, String kinds, String read_users, String nickname, String content, String created_at, Long front_created_at) {
         this.idx = idx;
         this.room_idx = room_idx;
         this.user_idx = user_idx;
         this.kinds = kinds;
-        this.read_count = read_count;
+        this.read_users = read_users;
 
         this.nickname = nickname;
         this.content = content;
@@ -78,15 +78,15 @@ public class ChattingModel {
     }
 
 
-    public Integer getRead_count() {
-        return read_count;
+    public String getRead_users() {
+        return read_users;
     }
 
-    public void setRead_count(int read_count) {
-        this.read_count = read_count;
+    public void setRead_users(String read_users) {
+        this.read_users = read_users;
     }
-    public void setRead_count_plus(){
-        this.read_count = this.read_count+1;
+    public void setRead_count_plus(int user_idx){
+        this.read_users = this.read_users+","+user_idx;
 
     }
 

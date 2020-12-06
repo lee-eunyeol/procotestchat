@@ -170,8 +170,9 @@ public class ChattingActivity extends AppCompatActivity {
         Date mReDate = new Date(send_timemills);
         SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String formatDate = mFormat.format(mReDate);
+
         //임시 채팅생성
-        ChattingModel ChattingModel = new ChattingModel(999999,room_idx,user_idx,"채팅"+"[pending]",1,nickname,message,formatDate,send_timemills);
+        ChattingModel ChattingModel = new ChattingModel(999999,room_idx,user_idx,"채팅"+"[pending]",String.valueOf(user_idx),nickname,message,formatDate,send_timemills);
         ChatClientIO.emit_socket("send_message",gson.toJson(ChattingModel), new Ack() {
             @Override
             public void call(Object... args) {
@@ -198,7 +199,7 @@ public class ChattingActivity extends AppCompatActivity {
         sharedSettings.change_file("chatrooms");
         sharedSettings.set_something_string(String.valueOf(ChattingModel.getRoom_idx()),gson.toJson(ChattingModel));
 
-
+        chat_recyclerview.scrollToPosition(ChattingAdapter.getChat_data().size()-1);
         chatting_text.setText("");
     }
 
@@ -210,7 +211,9 @@ public class ChattingActivity extends AppCompatActivity {
             String msg = intent.getStringExtra("message");
             Log.d("리시버", "메세지 받음" + msg);
             ChattingModel ChattingModel = gson.fromJson(msg, ChattingModel.class);
+
             ChattingAdapter.add_message(ChattingModel);
+            chat_recyclerview.scrollToPosition(ChattingAdapter.getChat_data().size()-1);
 
 
         }};
@@ -219,8 +222,9 @@ public class ChattingActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             int read_last_idx = Integer.parseInt(intent.getStringExtra("read_last_idx"));
+            int user_idx = Integer.parseInt(intent.getStringExtra("user_idx"));
             Log.d("리시버", "이 유저가 가장 마시막읽은메시지" + read_last_idx);
-            ChattingAdapter.change_message_user_in(read_last_idx);
+            ChattingAdapter.change_message_user_in(read_last_idx,user_idx);
 
 
         }};
@@ -239,12 +243,12 @@ public void join_room_to_server(){
     Log.d("join_room",socket.connected()+"");
 
     if(socket.connected()) {
-        ChatClientIO.emit_socket("join_room", room_idx,new AckWithTimeOut(1000){
+        ChatClientIO.emit_socket("join_room", room_idx,new AckWithTimeOut(3000){
                     @Override
                     public void call(Object... args) {
                         if(args!=null){
                             if(args[0].toString().equalsIgnoreCase("No Ack")){
-                                Log.d("ACK_SOCKET","AckWithTimeOut : "+ args[0].toString());
+                                Log.d(TAG,"응답 없음");
                             }else{
                                 Log.d(TAG, args[0].toString());
                                 Type type = new TypeToken<List<ChattingModel>>() {
