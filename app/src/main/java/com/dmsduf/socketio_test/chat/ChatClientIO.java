@@ -53,6 +53,7 @@ public class ChatClientIO extends Service {
     String url_iwinv =  "http://49.247.214.168:3001";
     Notification_EY notification;
     SharedSettings sharedSettings;
+    SharedSettings sharedSettings_chat;
     public static Gson gson;
 
     public ChatClientIO() {
@@ -88,7 +89,7 @@ public class ChatClientIO extends Service {
         Log.d(TAG, "onStartCommand 서비스시작");
         notification = new Notification_EY(this);
         sharedSettings = new SharedSettings(this, "user_info");
-
+        sharedSettings_chat = new SharedSettings(this, "user_chat");
 //        sharedSettings.clear();
 
         gson = new Gson();
@@ -186,6 +187,8 @@ public class ChatClientIO extends Service {
                 emit_socket(ChatClientIO.this,"user_login", gson.toJson(new UserModel(sharedSettings.get_something_string("user_nickname"), sharedSettings.get_something_int("user_idx"))), new Ack() {
                     @Override
                     public void call(Object... args) {
+                        Log.d(TAG,"로그인시 채팅 메시지를 전부 불러온다");
+
 
                     }
                 });
@@ -280,24 +283,28 @@ public class ChatClientIO extends Service {
         });
 
 
+
     }
     //메시지를 받았을때 , 채팅 메시지를 알맞게 저장하는 메소드
     private void save_chat_data(ChattingModel chattingModel) {
         int room_idx = chattingModel.getRoom_idx();
         Type type = new TypeToken<List<ChattingModel>>() {}.getType();
         ArrayList<ChattingModel> chat_datas = new ArrayList<>();
-        //그 방에대한 메시지 내역이 저장되어 있는경우
-        if(!sharedSettings.get_something_string("room_idx"+room_idx).equals("없음")) {
-            Log.d(TAG,"받은거"+sharedSettings.get_something_string("room_idx" + room_idx));
-            chat_datas = gson.fromJson(sharedSettings.get_something_string("room_idx" + room_idx), type);
+
+        //메시지 읽음/안읽음 로직
+        //처음 메시지를 받았을떄 채팅방에 있는 상태가 아니라면  안읽은메시지로 저장이 된다.
+        //그 방에대한 않읽은 메시지 내역이 저장되어 있는경우 안읽은 메시지를추가 한다.
+        if(!sharedSettings_chat.get_something_string("room_idx"+room_idx).equals("없음")) {
+            Log.d(TAG,"받은거"+sharedSettings_chat.get_something_string("room_idx" + room_idx));
+            chat_datas = gson.fromJson(sharedSettings_chat.get_something_string("room_idx" + room_idx), type);
             chat_datas.add(chattingModel);
         }
-        //쉐어드에 저장된 메시지가 전혀없을경우 ( 첫메시지일경우)
+        //쉐어드에 안읽은 메시지가 전혀없을경우 ( 첫메시지일경우)
         else{
             chat_datas.add(chattingModel);
         }
         //새로 온 메시지 추가
-        sharedSettings.set_something_string("room_idx" + room_idx,gson.toJson(chat_datas));
+        sharedSettings_chat.set_something_string("room_idx" + room_idx,gson.toJson(chat_datas));
 
     }
 

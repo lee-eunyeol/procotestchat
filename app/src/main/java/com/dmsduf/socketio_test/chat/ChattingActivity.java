@@ -90,6 +90,7 @@ public class ChattingActivity extends AppCompatActivity {
     int user_idx;
     RoomModel roomModel;
     SharedSettings sharedSettings;
+    SharedSettings sharedSettings_chat;
 
 
     @SuppressLint("RestrictedApi")
@@ -99,6 +100,7 @@ public class ChattingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chatting_room);
         //유저 정보 들어간 쉐어드
         sharedSettings = new SharedSettings(this,"user_info");
+        sharedSettings_chat = new SharedSettings(this, "user_chat");
 
         //TODO 여기 방 번호 가져오는 부분 문제 있을 수 있음.
         nickname = sharedSettings.get_something_string("user_nickname");
@@ -196,8 +198,8 @@ public class ChattingActivity extends AppCompatActivity {
 
         ChattingAdapter.add_front_message(ChattingModel);
 
-        sharedSettings.change_file("chatrooms");
-        sharedSettings.set_something_string(String.valueOf(ChattingModel.getRoom_idx()),gson.toJson(ChattingModel));
+        //TODO 문제 채팅저장부분
+        sharedSettings_chat.set_something_string(String.valueOf(ChattingModel.getRoom_idx()),gson.toJson(ChattingModel));
 
         chat_recyclerview.scrollToPosition(ChattingAdapter.getChat_data().size()-1);
         chatting_text.setText("");
@@ -253,11 +255,11 @@ public void join_room_to_server(){
                                 Log.d(TAG, args[0].toString());
                                 Type type = new TypeToken<List<ChattingModel>>() {
                                 }.getType();
-                                sharedSettings.set_something_string("room_idx" + room_idx, args[0].toString());
+                                sharedSettings_chat.set_something_string("room_idx" + room_idx, args[0].toString());
                                 ArrayList<ChattingModel> chat_data = gson.fromJson(args[0].toString(), type);
                                 ChattingAdapter.setChat_data(chat_data);
                                 //입장하는 순간 방 idx를 저장한다.
-                                sharedSettings.set_something_int("current_room_idx", room_idx);
+                                sharedSettings_chat.set_something_int("current_room_idx", room_idx);
                             }}
                     }
                 }
@@ -276,8 +278,8 @@ public void join_room_to_server(){
         //저장되어 있던 채팅데이터 및 채팅방 데이터를 받아온다.
         Type type = new TypeToken<List<ChattingModel>>() {}.getType();
 
-        if(!sharedSettings.get_something_string("room_idx"+room_idx).equals("없음")) {
-            chat_data = gson.fromJson(sharedSettings.get_something_string("room_idx" + room_idx), type);
+        if(!sharedSettings_chat.get_something_string("room_idx"+room_idx).equals("없음")) {
+            chat_data = gson.fromJson(sharedSettings_chat.get_something_string("room_idx" + room_idx), type);
         }
         else{
             chat_data = new ArrayList<>();
