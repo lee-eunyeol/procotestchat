@@ -1,7 +1,6 @@
 package com.dmsduf.socketio_test.chat;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
@@ -38,7 +37,6 @@ import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
-import io.socket.engineio.client.transports.WebSocket;
 import okhttp3.OkHttpClient;
 
 public class ChatClientIO extends Service {
@@ -250,7 +248,7 @@ public class ChatClientIO extends Service {
             Log.d(TAG, "최상단 스택: " + topstack_name);
 
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
-            if (chattingModel.getRoom_idx() == current_user_room && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
+            if (chattingModel.getChatroom_idx() == current_user_room && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
                 Log.d(TAG, "채팅방에 있어서 채팅창 업데이트");
                 Intent intent = new Intent("go_chatingroom");
                 intent.putExtra("message", data);
@@ -304,7 +302,7 @@ public class ChatClientIO extends Service {
     }
     //메시지를 받았을때 , 채팅 메시지를 알맞게 저장하는 메소드
     private void save_chat_data(ChattingModel chattingModel) {
-        int room_idx = chattingModel.getRoom_idx();
+        int room_idx = chattingModel.getChatroom_idx();
         Type type = new TypeToken<List<ChattingModel>>() {}.getType();
         ArrayList<ChattingModel> chat_datas = new ArrayList<>();
 
@@ -361,6 +359,9 @@ public class ChatClientIO extends Service {
                     break;
                 case "update_user_state":
                     socket.emit(C2S+"update_user_state",object,ack);
+                    break;
+                case "get_rooms":
+                    socket.emit(C2S+"get_rooms",object,ack);
                     break;
             }
         }

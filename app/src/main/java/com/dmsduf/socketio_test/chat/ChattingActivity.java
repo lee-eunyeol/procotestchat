@@ -2,7 +2,6 @@ package com.dmsduf.socketio_test.chat;
 
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,7 +31,6 @@ import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.adapter.ChattingAdapter;
 import com.dmsduf.socketio_test.adapter.ChattingNaviAdapter;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
-import com.dmsduf.socketio_test.data_list.ChattingUsersRead;
 import com.dmsduf.socketio_test.data_list.RoomModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -199,7 +197,7 @@ public class ChattingActivity extends AppCompatActivity {
         ChattingAdapter.add_front_message(ChattingModel);
 
         //TODO 문제 채팅저장부분
-        sharedSettings_chat.set_something_string(String.valueOf(ChattingModel.getRoom_idx()),gson.toJson(ChattingModel));
+        sharedSettings_chat.set_something_string(String.valueOf(ChattingModel.getChatroom_idx()),gson.toJson(ChattingModel));
 
         chat_recyclerview.scrollToPosition(ChattingAdapter.getChat_data().size()-1);
         chatting_text.setText("");

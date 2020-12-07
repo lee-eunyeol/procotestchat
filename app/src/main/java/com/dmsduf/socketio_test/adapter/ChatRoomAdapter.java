@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -21,10 +20,6 @@ import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 
 import java.util.List;
-
-import io.socket.client.Ack;
-
-import static com.dmsduf.socketio_test.chat.ChatClientIO.emit_socket;
 
 public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     List<ChatRoomModel> chatRoomModel;
@@ -48,6 +43,13 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     Handler handler;
 
 
+    public List<ChatRoomModel> getChatRoomModel() {
+        return chatRoomModel;
+    }
+
+    public void setChatRoomModel(List<ChatRoomModel> chatRoomModel) {
+        this.chatRoomModel = chatRoomModel;
+    }
 
     @NonNull
     @Override
@@ -62,7 +64,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((view_holder)holder).last_message.setText(chatRoomModel.get(position).getLast_message());
+        ((view_holder)holder).last_message.setText(chatRoomModel.get(position).getContent());
         ((view_holder)holder).chat_list_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,16 +84,17 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         });
         ((view_holder)holder).creator.setText(chatRoomModel.get(position).getCreator_nickname());
         ((view_holder)holder).room_title.setText(chatRoomModel.get(position).getRoom_name());
-        ((view_holder)holder).time.setText(chatRoomModel.get(position).getTime());
+        ((view_holder)holder).time.setText(chatRoomModel.get(position).getCreated_at());
+        ((view_holder)holder).recycler_chat_list_see_count.setText(chatRoomModel.get(position).getNone_read_count()+"");
 
     }
     public void update_new_message(ChattingModel chattingModel){
         for (int i= 0 ; i<chatRoomModel.size();i++){
-            Log.d(TAG,"바"+chatRoomModel.get(i).getChatroom_idx()+"/"+chattingModel.getRoom_idx());
-            if (chatRoomModel.get(i).getChatroom_idx()==chattingModel.getRoom_idx()){
+            Log.d(TAG,"바"+chatRoomModel.get(i).getChatroom_idx()+"/"+chattingModel.getChatroom_idx());
+            if (chatRoomModel.get(i).getChatroom_idx()==chattingModel.getChatroom_idx()){
                 Log.d(TAG,"바뀌어야할 채팅방 찾음");
-                chatRoomModel.get(i).setLast_message(chattingModel.getContent());
-                chatRoomModel.get(i).setTime(chattingModel.getCreated_at());
+                chatRoomModel.get(i).setContent(chattingModel.getContent());
+                chatRoomModel.get(i).setCreated_at(chattingModel.getCreated_at());
 
                 break;
             }

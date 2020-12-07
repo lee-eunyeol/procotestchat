@@ -28,7 +28,7 @@ public class Notification_EY {
                 //노티피케이션 인텐트-> 노티피케이션 클릭시 팬딩인텐트를 통하여 어느 엑티비티로 이동할지 설정할 수 있음.
                 Intent intent =  new Intent(context, ChattingActivity.class);
                 //값전달
-                intent.putExtra("room_idx",chattingModel.getRoom_idx());
+                intent.putExtra("room_idx",chattingModel.getChatroom_idx());
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP //PendingIntent.FLAG_UPDATE_CURRENT를 줘야 내가 준 내용이 갱신이 됨
                         | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 

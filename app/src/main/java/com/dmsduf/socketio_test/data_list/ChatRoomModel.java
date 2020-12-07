@@ -1,6 +1,5 @@
 package com.dmsduf.socketio_test.data_list;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChatRoomModel {
@@ -12,8 +11,18 @@ public class ChatRoomModel {
     String creator_profile;
     String creator_nickname;
     String room_name;
-    String time;
-    String last_message;
+    String created_at;
+    String content;
+    int none_read_count;
+
+    public int getNone_read_count() {
+        return none_read_count;
+    }
+
+    public void setNone_read_count(int none_read_count) {
+        this.none_read_count = none_read_count;
+    }
+
     public int getCard_idx() {
         return card_idx;
     }
@@ -62,32 +71,34 @@ public class ChatRoomModel {
         this.creator_nickname = creator_nickname;
     }
 
-    public String getLast_message() {
-        return last_message;
+    public String getContent() {
+        return content;
     }
 
-    public void setLast_message(String last_message) {
-        this.last_message = last_message;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getTime() {
-        return time;
+    public String getCreated_at() {
+        return created_at;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
     }
 
 
-    public ChatRoomModel(int card_idx, int chatroom_idx, String chatrooom_type, List<TagModel> card_tag, String creator_profile, String creator_nickname, String last_message, String time) {
+    public ChatRoomModel(int card_idx, int chatroom_idx, String chatrooom_type, List<TagModel> card_tag, String creator_profile, String creator_nickname, String content, String created_at,int none_read_count) {
         this.card_idx = card_idx;
         this.chatroom_idx = chatroom_idx;
         this.chatrooom_type = chatrooom_type;
         this.card_tag = card_tag;
         this.creator_profile = creator_profile;
         this.creator_nickname = creator_nickname;
-        this.last_message = last_message;
-        this.time = time;
+        this.content = content;
+        this.created_at = created_at;
+        this.none_read_count = none_read_count;
+
     }
 
     public String getRoom_name() {

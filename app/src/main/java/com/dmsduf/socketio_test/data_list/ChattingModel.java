@@ -4,17 +4,26 @@ import android.util.Log;
 
 public class ChattingModel {
     int idx;
-    int room_idx; //참여중인 방
+    int chatroom_idx; //참여중인 방
     int user_idx; //보낸사람 idx
     String kinds;  //채팅메시지종류
     String read_users;   //읽은 사람들
     String TAG = "ChattingModel";
     String nickname; //보낸사람 닉네임
     String content; //메세지내용
+    int count;
 
-    public ChattingModel(int idx, int room_idx, int user_idx, String kinds, String read_users, String nickname, String content, String created_at, Long front_created_at) {
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public ChattingModel(int idx, int chatroom_idx, int user_idx, String kinds, String read_users, String nickname, String content, String created_at, Long front_created_at) {
         this.idx = idx;
-        this.room_idx = room_idx;
+        this.chatroom_idx = chatroom_idx;
         this.user_idx = user_idx;
         this.kinds = kinds;
         this.read_users = read_users;
@@ -46,11 +55,11 @@ public class ChattingModel {
 
 
     public int getRoom_name() {
-        return room_idx;
+        return chatroom_idx;
     }
 
     public void setRoom_name(int room_idx) {
-        this.room_idx = room_idx;
+        this.chatroom_idx = room_idx;
     }
 
     public int getUser_idx() {
@@ -90,12 +99,12 @@ public class ChattingModel {
 
     }
 
-    public int getRoom_idx() {
-        return room_idx;
+    public int getChatroom_idx() {
+        return chatroom_idx;
     }
 
-    public void setRoom_idx(int room_idx) {
-        this.room_idx = room_idx;
+    public void setChatroom_idx(int chatroom_idx) {
+        this.chatroom_idx = chatroom_idx;
     }
 
     public String getKinds() {
