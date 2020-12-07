@@ -44,6 +44,7 @@ import okhttp3.OkHttpClient;
 public class ChatClientIO extends Service {
     public static Socket socket;
     public static Boolean is_chatroom = false;  //채팅방 목록을 보고있는지 보고있지 않은지 확인 하는변수 MainActivty에서 사용함
+    public static Boolean is_mainfriend = false;
     OkHttpClient okHttpClient;
 
     String TAG = "client-io_service";
@@ -168,7 +169,7 @@ public class ChatClientIO extends Service {
         IO.setDefaultOkHttpCallFactory(okHttpClient);
         IO.Options opts = new IO.Options();
         try {
-            socket = IO.socket(url_local, opts);
+            socket = IO.socket(url_local,opts);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -214,6 +215,7 @@ public class ChatClientIO extends Service {
             @Override
             public void call(Object... args) {
                 Log.d(TAG, "EVENT_CONNECT_ERROR");
+
 
             }
         });
@@ -281,6 +283,20 @@ public class ChatClientIO extends Service {
 
 
         });
+        //친구들중 한명의 상태가 바뀌었을때 알림받는곳
+        socket.on(S2C + "update_user", args -> {
+            Log.d(TAG,"어떤사람이 업데이트되었어용"+is_mainfriend);
+            if(is_mainfriend){
+                Intent intent = new Intent("update_user");
+                //가장 최근에 받은 메시지 idx를 보내기
+                intent.putExtra("update_user", args[0].toString());
+                LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
+            }
+
+
+
+        });
+
 
 
 
@@ -341,6 +357,9 @@ public class ChatClientIO extends Service {
                         socket.disconnect();
                         socket.close();
                     }
+                    break;
+                case "update_user_state":
+                    socket.emit(C2S+"update_user_state",object,ack);
                     break;
             }
         }
