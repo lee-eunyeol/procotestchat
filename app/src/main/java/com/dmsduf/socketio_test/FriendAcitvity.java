@@ -52,16 +52,30 @@ public class FriendAcitvity extends AppCompatActivity {
     private BroadcastReceiver user_update_reciver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String update_string = intent.getStringExtra("update_user");
-            update_items(update_string);
+            String state = intent.getStringExtra("state");
+            String update_string = intent.getStringExtra("update_content");
+
+            update_items(state,update_string);
 
         }};
 
 
 
-    public void update_items(String item){
-        //원래는 여기서 친구 카드중 하나 찾아서 어뎁터 업데이트 시키면 됨
-        textView.setText(item);
+    public void update_items(String state , String item){
+        switch (state) {
+            case "make_card":
+                //카드만들기의 경우 카드객체 클래스 받을것
+                textView.setText("카드만들기"+item);
+                break;
+            case "delete_card":
+                textView.setText("카드삭제하기"+item);
+                break;
+            case "online" : case "offline":
+            //원래는 여기서 친구 카드중 하나 찾아서 어뎁터 업데이트 시키면 됨
+                textView.setText("상태업데이트하기"+item);
+                break;
+
+        }
     }
 
     //상태 알리기 버튼눌렀을때

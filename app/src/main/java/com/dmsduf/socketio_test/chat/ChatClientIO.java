@@ -287,12 +287,13 @@ public class ChatClientIO extends Service {
         socket.on(S2C + "update_user", args -> {
             Log.d(TAG,"어떤사람이 업데이트되었어용"+is_mainfriend);
             if(is_mainfriend){
+
                 Intent intent = new Intent("update_user");
                 //가장 최근에 받은 메시지 idx를 보내기
-                intent.putExtra("update_user", args[0].toString());
+                intent.putExtra("state",args[0].toString());
+                intent.putExtra("update_content", args[1].toString());
                 LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
             }
-
 
 
         });
