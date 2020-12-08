@@ -12,7 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
+import static com.dmsduf.socketio_test.chat.ChatClientIO.current_room_idx;
 import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.chat.ChattingActivity;
@@ -69,11 +69,11 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onClick(View v) {
                 //소켓에 방번호 주어서 방 입장신호 emit하기
-                SharedSettings sharedSettings = new SharedSettings(context,"user_info");
+//                SharedSettings sharedSettings = new SharedSettings(context,"user_info");
+                //입장하는 순간 방 idx를 벼수에 담는다..
+                current_room_idx  = chatRoomModel.get(position).getChatroom_idx();
 
-                int room_idx = chatRoomModel.get(position).getChatroom_idx();
-                //입장하는 순간 방 idx를 저장한다.
-                sharedSettings.set_something_int("current_room_idx",room_idx);
+//                sharedSettings.set_something_int("current_room_idx",current_room_idx);
 
                 Intent intent  = new Intent(context, ChattingActivity.class);
                 context.startActivity(intent);

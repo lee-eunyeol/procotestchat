@@ -43,6 +43,7 @@ public class ChatClientIO extends Service {
     public static Socket socket;
     public static Boolean is_chatroom = false;  //채팅방 목록을 보고있는지 보고있지 않은지 확인 하는변수 MainActivty에서 사용함
     public static Boolean is_mainfriend = false;
+    public static int current_room_idx = -1; //현재 들어와있는 채팅방의 위치
     OkHttpClient okHttpClient;
 
     String TAG = "client-io_service";
@@ -52,7 +53,7 @@ public class ChatClientIO extends Service {
     String url_iwinv =  "http://49.247.214.168:3001";
     Notification_EY notification;
     SharedSettings sharedSettings;
-    SharedSettings sharedSettings_chat;
+
     public static Gson gson;
 
     public ChatClientIO() {
@@ -88,7 +89,7 @@ public class ChatClientIO extends Service {
         Log.d(TAG, "onStartCommand 서비스시작");
         notification = new Notification_EY(this);
         sharedSettings = new SharedSettings(this, "user_info");
-        sharedSettings_chat = new SharedSettings(this, "user_chat");
+
 //        sharedSettings.clear();
 
         gson = new Gson();
@@ -187,6 +188,9 @@ public class ChatClientIO extends Service {
                     @Override
                     public void call(Object... args) {
                         Log.d(TAG,"로그인시 채팅 메시지를 전부 불러온다");
+                        Log.d(TAG,args[0].toString());
+
+//                        sharedSettings_chat.set_something_string();
 
 
                     }
@@ -243,12 +247,12 @@ public class ChatClientIO extends Service {
             save_chat_data(chattingModel);
 
             //현재 유저가 들어가 있는 채팅방 idx를 검사한다.
-            int current_user_room = sharedSettings.get_something_int("current_room_idx");
+
             String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
             Log.d(TAG, "최상단 스택: " + topstack_name);
 
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
-            if (chattingModel.getChatroom_idx() == current_user_room && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
+            if (chattingModel.getChatroom_idx() == current_room_idx && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
                 Log.d(TAG, "채팅방에 있어서 채팅창 업데이트");
                 Intent intent = new Intent("go_chatingroom");
                 intent.putExtra("message", data);
@@ -272,14 +276,21 @@ public class ChatClientIO extends Service {
         });
         //다른사람이 채팅방에 참여했다는 알림을 준다.
         socket.on(S2C + "user_in_room", args -> {
-            Intent intent = new Intent("user_join");
+            String read_last_idx = args[0].toString();
+            String user_idx = args[1].toString();
+            String room_idx = args[2].toString();
+            Log.d("리시버", user_idx+"번 유저가"+room_idx+"번 채팅방에 들어왔어요.");
+            sharedSettings.update_chatroom_message(user_idx,room_idx,read_last_idx);
 
-            //가장 최근에 받은 메시지 idx를 보내기
-            intent.putExtra("read_last_idx", args[0].toString());
-            intent.putExtra("user_idx", args[1].toString());
-            LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
-
-
+            //만약 지금 업데이트된 채팅방을 보고 있다면 메시지를 실시간으로 없데이트 합니다.
+            if (is_chatroom && current_room_idx == Integer.parseInt(room_idx)) {
+                Intent intent = new Intent("user_join");
+                //가장 최근에 받은 메시지 idx를 보내기
+                intent.putExtra("read_last_idx", args[0].toString());
+                intent.putExtra("user_idx", args[1].toString());
+                LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
+                // 쉐어드에 업데이트 된 데이터를 저장하도록 한다.
+            }
         });
         //친구들중 한명의 상태가 바뀌었을때 알림받는곳
         socket.on(S2C + "update_user", args -> {
@@ -309,17 +320,17 @@ public class ChatClientIO extends Service {
         //메시지 읽음/안읽음 로직
         //처음 메시지를 받았을떄 채팅방에 있는 상태가 아니라면  안읽은메시지로 저장이 된다.
         //그 방에대한 않읽은 메시지 내역이 저장되어 있는경우 안읽은 메시지를추가 한다.
-        if(!sharedSettings_chat.get_something_string("room_idx"+room_idx).equals("없음")) {
-            Log.d(TAG,"받은거"+sharedSettings_chat.get_something_string("room_idx" + room_idx));
-            chat_datas = gson.fromJson(sharedSettings_chat.get_something_string("room_idx" + room_idx), type);
+        if(!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
+            Log.d(TAG,"받은거"+sharedSettings.get_chatroom_messages(String.valueOf(room_idx)));
+            chat_datas = gson.fromJson(sharedSettings.get_chatroom_messages(String.valueOf(room_idx)), type);
             chat_datas.add(chattingModel);
         }
-        //쉐어드에 안읽은 메시지가 전혀없을경우 ( 첫메시지일경우)
+        //쉐어드에 저장된 메시지가 전혀없을경우 ( 첫메시지일경우)
         else{
             chat_datas.add(chattingModel);
         }
         //새로 온 메시지 추가
-        sharedSettings_chat.set_something_string("room_idx" + room_idx,gson.toJson(chat_datas));
+        sharedSettings.set_chatroom_messages(String.valueOf(room_idx),gson.toJson(chat_datas));
 
     }
 
@@ -330,7 +341,8 @@ public class ChatClientIO extends Service {
             Log.d("socket.emit!", guide + "::" + object.toString());
             switch (guide) {
                 case "user_login":
-                    socket.emit(C2S + "user_login", object);
+                    socket.emit(C2S + "user_login", object,ack);
+
                     break;
                 case "user_logout":
                     socket.emit(C2S + "user_logout", object);

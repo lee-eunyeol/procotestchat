@@ -43,6 +43,7 @@ import java.util.List;
 
 import io.socket.client.Ack;
 
+import static com.dmsduf.socketio_test.chat.ChatClientIO.current_room_idx;
 import static com.dmsduf.socketio_test.chat.ChatClientIO.socket;
 
 
@@ -102,7 +103,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         //TODO 여기 방 번호 가져오는 부분 문제 있을 수 있음.
         nickname = sharedSettings.get_something_string("user_nickname");
-        room_idx = sharedSettings.get_something_int("current_room_idx");
+        room_idx = current_room_idx;
         user_idx = sharedSettings.get_something_int("user_idx");
         gson = new Gson();
 
@@ -223,12 +224,12 @@ public class ChattingActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             int read_last_idx = Integer.parseInt(intent.getStringExtra("read_last_idx"));
             int user_idx = Integer.parseInt(intent.getStringExtra("user_idx"));
-            Log.d("리시버", "이 유저가 가장 마시막읽은메시지" + read_last_idx);
+
             ChattingAdapter.change_message_user_in(read_last_idx,user_idx);
 
 
         }};
-    //##메세지를 받았을떄
+    //##소켓이 연결되어 서버에게서 메시지를 받아온다.
     private BroadcastReceiver connectReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -257,7 +258,8 @@ public void join_room_to_server(){
                                 ArrayList<ChattingModel> chat_data = gson.fromJson(args[0].toString(), type);
                                 ChattingAdapter.setChat_data(chat_data);
                                 //입장하는 순간 방 idx를 저장한다.
-                                sharedSettings_chat.set_something_int("current_room_idx", room_idx);
+                                current_room_idx = room_idx;
+//                                sharedSettings_chat.set_something_int("current_room_idx", room_idx);
                             }}
                     }
                 }
