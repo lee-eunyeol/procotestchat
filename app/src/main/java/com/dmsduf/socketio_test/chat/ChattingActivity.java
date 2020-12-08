@@ -238,7 +238,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         }};
 
-
+//채팅방에 입장하면서 채팅메시지내역 전체를 불러오는 부분
 public void join_room_to_server(){
     //소켓이 연결되어있을경우에만 업데이트
     Log.d("join_room",socket.connected()+"");
@@ -254,7 +254,7 @@ public void join_room_to_server(){
                                 Log.d(TAG, args[0].toString());
                                 Type type = new TypeToken<List<ChattingModel>>() {
                                 }.getType();
-                                sharedSettings_chat.set_something_string("room_idx" + room_idx, args[0].toString());
+                                sharedSettings_chat.set_chatroom_messages(String.valueOf(room_idx), args[0].toString());
                                 ArrayList<ChattingModel> chat_data = gson.fromJson(args[0].toString(), type);
                                 ChattingAdapter.setChat_data(chat_data);
                                 //입장하는 순간 방 idx를 저장한다.
@@ -276,12 +276,14 @@ public void join_room_to_server(){
         super.onStart();
         //유저 idx함께 보내준다.
         //저장되어 있던 채팅데이터 및 채팅방 데이터를 받아온다.
-        Type type = new TypeToken<List<ChattingModel>>() {}.getType();
 
-        if(!sharedSettings_chat.get_something_string("room_idx"+room_idx).equals("없음")) {
-            chat_data = gson.fromJson(sharedSettings_chat.get_something_string("room_idx" + room_idx), type);
+
+        if(!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
+            Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+            chat_data = gson.fromJson(sharedSettings.get_chatroom_messages(String.valueOf(room_idx)), type);
         }
         else{
+            Log.d(TAG,"[onstart]저장된 채팅메시지내역이 없어요.");
             chat_data = new ArrayList<>();
         }
         //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
@@ -291,8 +293,10 @@ public void join_room_to_server(){
         chat_recyclerview.setLayoutManager(new LinearLayoutManager(this));
 
         //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
-        //통신을 통해서 추가적으로 데이터 전체를 가져온다.
+        //소켓이 연결되어있다면 통신을 통해서 추가적으로 메시지 전체를 가져온다.
+        if(socket.connected()){
         join_room_to_server();
+        }
     }
     @Override
     protected void onPause() {

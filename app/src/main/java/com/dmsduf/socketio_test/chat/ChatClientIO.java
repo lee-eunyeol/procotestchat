@@ -238,6 +238,7 @@ public class ChatClientIO extends Service {
         //채팅방/앱 나감 or 채팅화면이 아님에 따라 변경하기/채팅방목록
         //엑티비티 매니져 현재 최상단 스택의 위치를 알기위해 사용
         ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
             String data = (String) args[0];
@@ -248,7 +249,7 @@ public class ChatClientIO extends Service {
 
             //현재 유저가 들어가 있는 채팅방 idx를 검사한다.
 
-            String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
+
             Log.d(TAG, "최상단 스택: " + topstack_name);
 
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
@@ -283,7 +284,7 @@ public class ChatClientIO extends Service {
             sharedSettings.update_chatroom_message(user_idx,room_idx,read_last_idx);
 
             //만약 지금 업데이트된 채팅방을 보고 있다면 메시지를 실시간으로 없데이트 합니다.
-            if (is_chatroom && current_room_idx == Integer.parseInt(room_idx)) {
+            if (topstack_name.equals(".chat.ChattingActivity") && current_room_idx == Integer.parseInt(room_idx)) {
                 Intent intent = new Intent("user_join");
                 //가장 최근에 받은 메시지 idx를 보내기
                 intent.putExtra("read_last_idx", args[0].toString());

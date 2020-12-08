@@ -5,9 +5,12 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.dmsduf.socketio_test.data_list.ChattingModel;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import static com.dmsduf.socketio_test.chat.ChatClientIO.gson;
 
 public class SharedSettings {
     Context context;
@@ -49,6 +52,22 @@ public class SharedSettings {
         }
         else{
 
+            Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+            ArrayList<ChattingModel> chat_data = gson.fromJson(messages, type);
+            for(int i=chat_data.size()-1;i>=0;i--){
+                Log.d("읽음처리채팅idx",chat_data.get(i).getIdx()+"");
+                //만약 전체 채팅메시지를 읽었다면
+                if(chat_data.get(i).getIdx()<=Integer.parseInt(read_last_idx)){
+                    break;
+                }
+                else{
+                    //읽음처리 후 저장
+                    Log.d("읽음처리전",chat_data.get(i).getRead_users());
+                    chat_data.get(i).setRead_count_plus(Integer.parseInt(user_idx));
+                    Log.d("읽음처리후",chat_data.get(i).getRead_users());
+                }
+            }
+            set_chatroom_messages(room_idx,gson.toJson(chat_data));
         }
 
     }
@@ -79,7 +98,9 @@ public class SharedSettings {
         editor.commit();
     }
     public void clear(){
-        editor.clear();
-        editor.commit();
+
+        chat_editor.clear();
+        chat_editor.commit();
+
     }
 }
