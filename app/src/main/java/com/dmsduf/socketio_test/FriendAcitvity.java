@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.dmsduf.socketio_test.chat.ChatClientIO;
-import com.dmsduf.socketio_test.data_list.UpdateUserModel;
+import com.dmsduf.socketio_test.data_list.UserStateModel;
 import com.dmsduf.socketio_test.data_list.UserModel;
 
 import java.util.ArrayList;
@@ -84,8 +84,8 @@ public class FriendAcitvity extends AppCompatActivity {
         int user_idx = sharedSettings.get_something_int("user_idx");
         announce_users.add(2);
         announce_users.add(3);
-        UpdateUserModel updateUserModel = new UpdateUserModel(user_idx,"online",announce_users);
-        String item  = gson.toJson(updateUserModel);
+        UserStateModel userStateModel = new UserStateModel(user_idx,"online",announce_users);
+        String item  = gson.toJson(userStateModel);
         emit_socket(FriendAcitvity.this, "update_user_state", item, new Ack() {
             @Override
             public void call(Object... args) {
@@ -93,7 +93,14 @@ public class FriendAcitvity extends AppCompatActivity {
             }
         });
     }
+    public void make_room(View v){
+        emit_socket(FriendAcitvity.this, "make_chatroom", gson.toJson(new UserModel(1,1)), new Ack() {
+            @Override
+            public void call(Object... args) {
 
+            }
+        });
+    }
     public void chat_TO(View v){
 
         ChatClientIO.emit_socket(FriendAcitvity.this,"check_room", gson.toJson(new UserModel(2, 5)), new Ack() {

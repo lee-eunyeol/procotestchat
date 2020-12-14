@@ -3,23 +3,17 @@ package com.dmsduf.socketio_test.data_list;
 import android.util.Log;
 
 public class ChattingModel {
+
     int idx;
     int chatroom_idx; //참여중인 방
     int user_idx; //보낸사람 idx
-    String kinds;  //채팅메시지종류
-    String read_users;   //읽은 사람들
-    String TAG = "ChattingModel";
     String nickname; //보낸사람 닉네임
     String content; //메세지내용
-    int count;
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
+    String kinds;  //채팅메시지종류
+    String read_users;   //읽은 사람들
+    String created_at;  //서버에서 보낸 시간
+    Long front_created_at;  //프론트에서 실제로 보낸 시간
+    String TAG = "ChattingModel";
 
     public ChattingModel(int idx, int chatroom_idx, int user_idx, String kinds, String read_users, String nickname, String content, String created_at, Long front_created_at) {
         this.idx = idx;
@@ -42,8 +36,7 @@ public class ChattingModel {
         this.idx = idx;
     }
 
-    String created_at;  //서버에서 보낸 시간
-    Long front_created_at;  //프론트에서 실제로 보낸 시간
+
 
     public String getCreated_at() {
         return created_at;

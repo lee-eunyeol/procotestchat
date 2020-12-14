@@ -39,14 +39,40 @@ public class SharedSettings {
         return  sharedPreferences_chat.getString(room_idx,"없음");
 
     }
+    //채팅메시지하나만왔을떄작업하는부분
     public void set_chatroom_messages(String room_idx, String chattingModels){
-        chat_editor.putString(room_idx,chattingModels);
+        Log.d(TAG,"추가하는메시지"+chattingModels);
+        String messages = get_chatroom_messages(room_idx);
+        if(messages.equals("없음")) {
+            chat_editor.putString(room_idx,chattingModels);
+            chat_editor.commit();
+        }
+      else {
+            Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+            ArrayList<ChattingModel> chat_data = gson.fromJson(messages, type);
+
+            chat_data.add(gson.fromJson(chattingModels,ChattingModel.class));
+            chat_editor.putString(room_idx,gson.toJson(chat_data));
+            chat_editor.commit();
+        }
+    }
+    ///전체메시지저장하는부분
+    public void set_chatroom_message(String room_idx, String chattingModels){
+        Log.d(TAG,"추가하는메시지"+chattingModels);
+
+
+        Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+        ArrayList<ChattingModel> chat_data = gson.fromJson(chattingModels, type);
+
+        chat_editor.putString(room_idx,gson.toJson(chat_data));
         chat_editor.commit();
 
     }
     //쉐어드에 저장되어있는 메시지를 읽음처리 해주는 구간
     public void update_chatroom_message(String user_idx,String room_idx,String read_last_idx){
         String messages = get_chatroom_messages(room_idx);
+
+        Log.d(TAG,"[]메시지"+messages+room_idx);
         if(messages.equals("없음")){
             return;
         }
@@ -62,12 +88,10 @@ public class SharedSettings {
                 }
                 else{
                     //읽음처리 후 저장
-                    Log.d("읽음처리전",chat_data.get(i).getRead_users());
                     chat_data.get(i).setRead_count_plus(Integer.parseInt(user_idx));
-                    Log.d("읽음처리후",chat_data.get(i).getRead_users());
                 }
             }
-            set_chatroom_messages(room_idx,gson.toJson(chat_data));
+            set_chatroom_message(room_idx,gson.toJson(chat_data));
         }
 
     }
@@ -77,6 +101,7 @@ public class SharedSettings {
         return items;
     }
     public void set_something_string(String name,String item){
+
         editor.putString(name,item);
         editor.commit();
     }

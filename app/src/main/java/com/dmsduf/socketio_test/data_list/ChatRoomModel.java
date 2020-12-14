@@ -8,6 +8,9 @@ public class ChatRoomModel {
 
     String chatrooom_type; //채팅방 타입 (일반채팅,친구와채팅,비 친구와 채팅)
     List<TagModel> card_tag;
+
+
+
     String creator_profile;
     String creator_nickname;
     String room_name;

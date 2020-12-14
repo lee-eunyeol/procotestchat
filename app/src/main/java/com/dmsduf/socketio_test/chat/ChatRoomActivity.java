@@ -104,7 +104,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                 for (int i = 0 ; i < chat_datas.size();i++){
                 ChatRoomModel ChatRoomModel = new ChatRoomModel(chat_datas.get(i).getChatroom_idx(),chat_datas.get(i).getChatroom_idx(),"테스트"+i,tagModels
-                        ,"https://volae.ga/photo_test","이름"+i,chat_datas.get(i).getContent(),chat_datas.get(i).getCreated_at(),chat_datas.get(i).getCount());
+                        ,"https://volae.ga/photo_test","이름"+i,chat_datas.get(i).getContent(),chat_datas.get(i).getCreated_at(),1);
                 ChatRoomModel.setRoom_name("방이름"+chat_datas.get(i).getChatroom_idx());
                 list.add(ChatRoomModel);
 

@@ -19,7 +19,11 @@
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
         app:layout_constraintVertical_bias="0.565">
-
+    <Button
+        android:onClick="make_room"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="방만들기"></Button>
         <Button
             android:id="@+id/button"
             android:layout_width="wrap_content"

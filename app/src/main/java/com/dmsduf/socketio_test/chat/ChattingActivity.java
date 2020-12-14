@@ -44,6 +44,7 @@ import java.util.List;
 import io.socket.client.Ack;
 
 import static com.dmsduf.socketio_test.chat.ChatClientIO.current_room_idx;
+import static com.dmsduf.socketio_test.chat.ChatClientIO.is_chatting_room;
 import static com.dmsduf.socketio_test.chat.ChatClientIO.socket;
 
 
@@ -113,8 +114,8 @@ public class ChattingActivity extends AppCompatActivity {
         //다른사람이 채팅방에 입장했을때
         LocalBroadcastManager.getInstance(this).registerReceiver(joinroomReceiver, new IntentFilter("user_join"));
 
-        //데이터연결이 끊겼다가 다시 돌아왔을때
-        LocalBroadcastManager.getInstance(this).registerReceiver(connectReceiver, new IntentFilter("socket_connected"));
+//        //데이터연결이 끊겼다가 다시 돌아왔을때
+//        LocalBroadcastManager.getInstance(this).registerReceiver(connectReceiver, new IntentFilter("socket_connected"));
 
         chat_recyclerview = findViewById(R.id.chatting_recyclerview);
 
@@ -173,7 +174,7 @@ public class ChattingActivity extends AppCompatActivity {
         String formatDate = mFormat.format(mReDate);
 
         //임시 채팅생성
-        ChattingModel ChattingModel = new ChattingModel(999999,room_idx,user_idx,"채팅"+"[pending]",String.valueOf(user_idx),nickname,message,formatDate,send_timemills);
+        ChattingModel ChattingModel = new ChattingModel(-1,room_idx,user_idx,"C"+"[p]",String.valueOf(user_idx),nickname,message,formatDate,send_timemills);
         ChatClientIO.emit_socket(ChattingActivity.this,"send_message",gson.toJson(ChattingModel), new Ack() {
             @Override
             public void call(Object... args) {
@@ -198,7 +199,8 @@ public class ChattingActivity extends AppCompatActivity {
         ChattingAdapter.add_front_message(ChattingModel);
 
         //TODO 문제 채팅저장부분
-        sharedSettings_chat.set_something_string(String.valueOf(ChattingModel.getChatroom_idx()),gson.toJson(ChattingModel));
+
+        sharedSettings_chat.set_chatroom_messages(String.valueOf(ChattingModel.getChatroom_idx()),gson.toJson(ChattingModel));
 
         chat_recyclerview.scrollToPosition(ChattingAdapter.getChat_data().size()-1);
         chatting_text.setText("");
@@ -229,14 +231,14 @@ public class ChattingActivity extends AppCompatActivity {
 
 
         }};
-    //##소켓이 연결되어 서버에게서 메시지를 받아온다.
-    private BroadcastReceiver connectReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            join_room_to_server();
-
-
-        }};
+//    //##소켓이 연결되어 서버에게서 메시지를 받아온다.
+//    private BroadcastReceiver connectReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            join_room_to_server();
+//
+//
+//        }};
 
 //채팅방에 입장하면서 채팅메시지내역 전체를 불러오는 부분
 public void join_room_to_server(){
@@ -244,23 +246,10 @@ public void join_room_to_server(){
     Log.d("join_room",socket.connected()+"");
 
     if(socket.connected()) {
-        ChatClientIO.emit_socket(ChattingActivity.this,"join_room", room_idx,new AckWithTimeOut(3000){
+        ChatClientIO.emit_socket(ChattingActivity.this, "join_room", room_idx, new Ack() {
                     @Override
                     public void call(Object... args) {
-                        if(args!=null){
-                            if(args[0].toString().equalsIgnoreCase("No Ack")){
-                                Log.d(TAG,"응답 없음");
-                            }else{
-                                Log.d(TAG, args[0].toString());
-                                Type type = new TypeToken<List<ChattingModel>>() {
-                                }.getType();
-                                sharedSettings_chat.set_chatroom_messages(String.valueOf(room_idx), args[0].toString());
-                                ArrayList<ChattingModel> chat_data = gson.fromJson(args[0].toString(), type);
-                                ChattingAdapter.setChat_data(chat_data);
-                                //입장하는 순간 방 idx를 저장한다.
-                                current_room_idx = room_idx;
-//                                sharedSettings_chat.set_something_int("current_room_idx", room_idx);
-                            }}
+
                     }
                 }
         );
@@ -274,9 +263,10 @@ public void join_room_to_server(){
     @Override
     protected void onStart() {
         super.onStart();
+        is_chatting_room = true;
         //유저 idx함께 보내준다.
         //저장되어 있던 채팅데이터 및 채팅방 데이터를 받아온다.
-
+//        sharedSettings.clear();
 
         if(!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
             Type type = new TypeToken<List<ChattingModel>>() {}.getType();
@@ -306,6 +296,7 @@ public void join_room_to_server(){
     @Override
     protected void onStop() {
         super.onStop();
+        is_chatting_room = false;
         ChatClientIO.emit_socket(ChattingActivity.this,"leave_room", room_idx, new Ack() {
             @Override
             public void call(Object... args) {

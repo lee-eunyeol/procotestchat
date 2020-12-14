@@ -43,6 +43,7 @@ public class ChatClientIO extends Service {
     public static Socket socket;
     public static Boolean is_chatroom = false;  //채팅방 목록을 보고있는지 보고있지 않은지 확인 하는변수 MainActivty에서 사용함
     public static Boolean is_mainfriend = false;
+    public static Boolean is_chatting_room = false;
     public static int current_room_idx = -1; //현재 들어와있는 채팅방의 위치
     OkHttpClient okHttpClient;
 
@@ -79,7 +80,6 @@ public class ChatClientIO extends Service {
         //소켓이 연결되어있는 상태라면 소켓 연결을 끊도록 한다.
         if (socket.connected()) {
             socket.disconnect();
-
         }
         ;
     }
@@ -190,13 +190,11 @@ public class ChatClientIO extends Service {
                         Log.d(TAG,"로그인시 채팅 메시지를 전부 불러온다");
                         Log.d(TAG,args[0].toString());
 
-//                        sharedSettings_chat.set_something_string();
-
 
                     }
                 });
                 Log.d(TAG,is_chatroom+"연결됐을때 채팅방에있는지?");
-                //만약 어떤 채팅방에 들어온 상태에서 소켓연결이 됬을경우 방 참여도 해준다.
+                //만약 어떤 채팅방에 들어온 상태에서 소켓연결이 됬을경우 방 참여도 해준다. 
                 ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
                 String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
                 if(topstack_name.equals(".chat.ChattingActivity")){
@@ -228,9 +226,14 @@ public class ChatClientIO extends Service {
                 Log.d(TAG, "EVENT_CONNECT_TIMEOUT");
             }
         });
-
+        //ex)다른사람에게 메시지를 받았을떄
+        socket.on(S2C + "message", args -> {
+            ChattingModel chattingModel = gson.fromJson(args.toString(),ChattingModel.class);
+            //이후 채팅메시지처리...
+        });
 
     }
+
 
     public void init_socket_events() {
         Log.d(TAG, "socketinit");
@@ -238,7 +241,7 @@ public class ChatClientIO extends Service {
         //채팅방/앱 나감 or 채팅화면이 아님에 따라 변경하기/채팅방목록
         //엑티비티 매니져 현재 최상단 스택의 위치를 알기위해 사용
         ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
+        String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getClassName();
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
             String data = (String) args[0];
@@ -253,7 +256,7 @@ public class ChatClientIO extends Service {
             Log.d(TAG, "최상단 스택: " + topstack_name);
 
             //시점에 따라 푸시메시지를 보낼지 , 채팅방 목록을 업데이트 할지 , 푸시알람을 보낼지 선택 하도록 한다.
-            if (chattingModel.getChatroom_idx() == current_room_idx && topstack_name.equals(".chat.ChattingActivity")) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
+            if (chattingModel.getChatroom_idx() == current_room_idx && is_chatting_room) {    //현재 채팅방 안에 있고 ,받은 메세지가 현 채팅방에 온거라면 채팅메세지업데이트리시버
                 Log.d(TAG, "채팅방에 있어서 채팅창 업데이트");
                 Intent intent = new Intent("go_chatingroom");
                 intent.putExtra("message", data);
@@ -268,23 +271,25 @@ public class ChatClientIO extends Service {
 
 
                 //메시지를 받은 채팅방안에는 없지만 소켓이 연결되어있고 채팅목록 , 채팅방에도 없다면 노티피케이션
-            } else if (!is_chatroom && socket.connected()) {
+            } else if (!is_chatroom && socket.connected() && !is_chatting_room) {
                 Log.d(TAG, "노티피케이션주기");
                 notification.show_notification("ChattingActivity", chattingModel);
             }
 
 
         });
+        String C2S = "client_to_server";
+
         //다른사람이 채팅방에 참여했다는 알림을 준다.
-        socket.on(S2C + "user_in_room", args -> {
-            String read_last_idx = args[0].toString();
-            String user_idx = args[1].toString();
-            String room_idx = args[2].toString();
-            Log.d("리시버", user_idx+"번 유저가"+room_idx+"번 채팅방에 들어왔어요.");
+        socket.on(S2C + "join_room", args -> {
+            String read_last_idx = args[2].toString();
+            String user_idx = args[0].toString();
+            String room_idx = args[1].toString();
+            Log.d("리시버", user_idx+"번 유저가"+room_idx+"번 채팅방에 들어왔어요. 가장 최근 idx는 "+read_last_idx+"입니다");
             sharedSettings.update_chatroom_message(user_idx,room_idx,read_last_idx);
 
             //만약 지금 업데이트된 채팅방을 보고 있다면 메시지를 실시간으로 없데이트 합니다.
-            if (topstack_name.equals(".chat.ChattingActivity") && current_room_idx == Integer.parseInt(room_idx)) {
+            if (is_chatting_room && current_room_idx == Integer.parseInt(room_idx)) {
                 Intent intent = new Intent("user_join");
                 //가장 최근에 받은 메시지 idx를 보내기
                 intent.putExtra("read_last_idx", args[0].toString());
@@ -331,7 +336,7 @@ public class ChatClientIO extends Service {
             chat_datas.add(chattingModel);
         }
         //새로 온 메시지 추가
-        sharedSettings.set_chatroom_messages(String.valueOf(room_idx),gson.toJson(chat_datas));
+        sharedSettings.set_chatroom_message(String.valueOf(room_idx),gson.toJson(chat_datas));
 
     }
 
@@ -339,6 +344,7 @@ public class ChatClientIO extends Service {
         if (socket.connected()) {
             String C2S = "client_to_server";
             String TAG = "socket.emit";
+
             Log.d("socket.emit!", guide + "::" + object.toString());
             switch (guide) {
                 case "user_login":
@@ -353,9 +359,7 @@ public class ChatClientIO extends Service {
                     break;
 
                 case "leave_room":
-                    if (socket != null && socket.connected()) {
                         socket.emit(C2S + "leave_room", object);
-                    }
                     break;
                 case "send_message":
                     socket.emit(C2S + "message", object, ack);
@@ -376,10 +380,13 @@ public class ChatClientIO extends Service {
                 case "get_rooms":
                     socket.emit(C2S+"get_rooms",object,ack);
                     break;
+                case "make_chatroom":
+                    socket.emit(C2S+"make_chatroom",object,"1");
+                    break;
             }
         }
         else{
-            Toast.makeText(context, "소켓연결이 끊긴 상태 입니다.", Toast.LENGTH_SHORT).show();
+            Log.d("소켓연결","소켓연결이 끊긴상태!");
         }
     }
 

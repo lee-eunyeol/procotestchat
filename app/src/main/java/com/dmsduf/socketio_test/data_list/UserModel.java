@@ -3,8 +3,13 @@ package com.dmsduf.socketio_test.data_list;
 public class UserModel {
     String nickname;
     int idx;
+
+
+
+
+
     int op_idx;
-    String a;
+
 
     public  UserModel(String nickname, int idx) {
         this.nickname = nickname;
