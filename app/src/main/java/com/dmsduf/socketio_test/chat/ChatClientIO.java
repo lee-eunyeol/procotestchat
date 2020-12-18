@@ -14,6 +14,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.dmsduf.socketio_test.Notification_EY;
 import com.dmsduf.socketio_test.SharedSettings;
+import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.UserModel;
 import com.google.gson.Gson;
@@ -245,7 +246,13 @@ public class ChatClientIO extends Service {
         String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getClassName();
         //ex)다른사람에게 메시지를 받았을떄
         socket.on(S2C + "connect_complete", args -> {
+            Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {}.getType();
+            ArrayList<ChatRoomModel> chatRoomModels = gson.fromJson(args[0].toString(),chatroom_type);
+            for (ChatRoomModel chatRoomModel : chatRoomModels){
+                sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()),gson.toJson(chatRoomModels));
+            }
             Log.d(TAG,args[0].toString());
+
             Log.d(TAG,args[1].toString());
             //로그인 이후 채팅메시지처리...
         });

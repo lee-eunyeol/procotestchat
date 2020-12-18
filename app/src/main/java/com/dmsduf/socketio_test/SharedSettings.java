@@ -16,16 +16,29 @@ public class SharedSettings {
     Context context;
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferences_chat;
+    private SharedPreferences sharedPreferences_chatroom;
     private SharedPreferences.Editor editor;
     private SharedPreferences.Editor chat_editor;
+    private SharedPreferences.Editor chatroom_editor;
     String TAG = "쉐어드";
     public SharedSettings(Context context, String shared_name){
         this.context = context;
         Log.d(TAG,context.getPackageName());
         sharedPreferences = context.getSharedPreferences(shared_name,Context.MODE_PRIVATE);
         sharedPreferences_chat = context.getSharedPreferences("user_chat",Context.MODE_PRIVATE);
+        sharedPreferences_chatroom  = context.getSharedPreferences("user_chatroom",Context.MODE_PRIVATE);
         chat_editor = sharedPreferences_chat.edit();
         editor = sharedPreferences.edit();
+        chatroom_editor = sharedPreferences_chatroom.edit();
+    }
+    //받은 채팅메시지를 쉐어드에 저장하는 부분
+    public String get_chatroom_info(String room_idx){
+        return  sharedPreferences_chatroom.getString(room_idx,"없음");
+
+    }
+    public void set_chatroom_info(String chatroom_idx ,String chatroom_model){
+        chat_editor.putString(chatroom_idx,chatroom_model);
+        chat_editor.commit();
     }
 
     public void change_file(String file_name){
