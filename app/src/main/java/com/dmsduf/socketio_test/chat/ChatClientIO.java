@@ -246,12 +246,14 @@ public class ChatClientIO extends Service {
         String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getClassName();
         //ex)다른사람에게 메시지를 받았을떄
         socket.on(S2C + "connect_complete", args -> {
+            Log.d(TAG,args[0].toString());
             Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {}.getType();
             ArrayList<ChatRoomModel> chatRoomModels = gson.fromJson(args[0].toString(),chatroom_type);
             for (ChatRoomModel chatRoomModel : chatRoomModels){
+                Log.d(TAG, "여기오냐");
                 sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()),gson.toJson(chatRoomModels));
             }
-            Log.d(TAG,args[0].toString());
+
 
             Log.d(TAG,args[1].toString());
             //로그인 이후 채팅메시지처리...

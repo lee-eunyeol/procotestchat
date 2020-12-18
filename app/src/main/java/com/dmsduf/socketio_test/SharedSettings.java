@@ -37,8 +37,8 @@ public class SharedSettings {
 
     }
     public void set_chatroom_info(String chatroom_idx ,String chatroom_model){
-        chat_editor.putString(chatroom_idx,chatroom_model);
-        chat_editor.commit();
+        chatroom_editor.putString(chatroom_idx,chatroom_model);
+        chatroom_editor.commit();
     }
 
     public void change_file(String file_name){
