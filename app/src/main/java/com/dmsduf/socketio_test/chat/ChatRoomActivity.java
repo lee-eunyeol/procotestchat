@@ -88,31 +88,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onResume();
         is_chatroom = true;
 
-        emit_socket(ChatRoomActivity.this,"get_rooms", sharedSettings.get_something_int("user_idx"), new Ack() {
-            @Override
-            public void call(Object... args) {
 
-                Type type = new TypeToken<List<ChattingModel>>() {}.getType();
-                ArrayList<ChattingModel> chat_datas = new ArrayList<>();
-                chat_datas = gson.fromJson(args[0].toString(),type);
-                List<TagModel> tagModels = new ArrayList<>();
-                tagModels.add(new TagModel(1,"태그1"));
-                tagModels.add(new TagModel(2,"태그2"));
-                tagModels.add(new TagModel(3,"태그3"));
-                List<ChatRoomModel> list = new ArrayList<>();
-                Log.d("앙",args[0].toString());
-
-                for (int i = 0 ; i < chat_datas.size();i++){
-                ChatRoomModel ChatRoomModel = new ChatRoomModel(chat_datas.get(i).getChatroom_idx(),chat_datas.get(i).getChatroom_idx(),"테스트"+i,tagModels
-                        ,"https://volae.ga/photo_test","이름"+i,chat_datas.get(i).getContent(),chat_datas.get(i).getCreated_at(),1);
-                ChatRoomModel.setRoom_name("방이름"+chat_datas.get(i).getChatroom_idx());
-                list.add(ChatRoomModel);
-
-                }
-              chatRoomAdapter.setChatRoomModel(list);
-                chatRoomAdapter.notify_with_handler();
-            }
-        });
     }
 
     public void chat(View view){

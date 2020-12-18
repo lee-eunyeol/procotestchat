@@ -94,7 +94,7 @@ public class FriendAcitvity extends AppCompatActivity {
         });
     }
     public void make_room(View v){
-        emit_socket(FriendAcitvity.this, "make_chatroom", gson.toJson(new UserModel(1,1)), new Ack() {
+        emit_socket(FriendAcitvity.this, "make_chatroom", gson.toJson(new UserModel(1,sharedSettings.get_something_string("user_nickname"),"프로필")), new Ack() {
             @Override
             public void call(Object... args) {
 
@@ -103,7 +103,7 @@ public class FriendAcitvity extends AppCompatActivity {
     }
     public void chat_TO(View v){
 
-        ChatClientIO.emit_socket(FriendAcitvity.this,"check_room", gson.toJson(new UserModel(2, 5)), new Ack() {
+        ChatClientIO.emit_socket(FriendAcitvity.this,"check_room", gson.toJson(new UserModel(2, sharedSettings.get_something_string("user_nickname"),"프로필")), new Ack() {
             @Override
             public void call(Object... args) {
 

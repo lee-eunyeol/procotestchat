@@ -23,9 +23,6 @@ public class UserModel {
         this.profile_photo_path = profile_photo_path;
     }
 
-    public  UserModel(int idx){
-        this.idx = idx;
-    }
 
     public String getNickname() {
         return nickname;
