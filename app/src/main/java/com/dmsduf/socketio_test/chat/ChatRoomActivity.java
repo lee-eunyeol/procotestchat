@@ -87,7 +87,9 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         is_chatroom = true;
-
+        Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {}.getType();
+        ArrayList<ChatRoomModel> chatRoomModels = gson.fromJson(sharedSettings.get_chatroom_all().toString(),chatroom_type);
+        chatRoomAdapter.setChatRoomModel(chatRoomModels);
 
     }
 

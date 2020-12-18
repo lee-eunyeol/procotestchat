@@ -49,6 +49,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public void setChatRoomModel(List<ChatRoomModel> chatRoomModel) {
         this.chatRoomModel = chatRoomModel;
+        notify_with_handler();
     }
 
     @NonNull

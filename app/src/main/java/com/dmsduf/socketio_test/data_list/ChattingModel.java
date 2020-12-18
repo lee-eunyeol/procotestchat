@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class ChattingModel {
 
-    int idx;
+    int idx; //메시지의 idx
     int chatroom_idx; //참여중인 방
     int user_idx; //보낸사람 idx
     String nickname; //보낸사람 닉네임

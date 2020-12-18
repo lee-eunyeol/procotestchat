@@ -174,7 +174,7 @@ public class ChatClientIO extends Service {
 
         String token1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQ2NDgsImV4cCI6MTYwODAzMTg0OCwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoxLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.h8Six_UkIoZNEnBp-JHnXm1cLX-xNX8nDx6JhHefnNlA9IQt9kOjk7s4MNwSi9eVCKYdyGjAZXd8c8H0HCAOlwl8sHQIV1LlavVK9Qx7icJis9_jJXfVOgSJLmgpMc8P-6v6wIEHFU0mGeVxrpX1SILpKKA-Y9PAnNzyulHL59R7w3nLluS6a-OWlMeB7jWwASHw7hzHVSKxA0_PuZ-SHgtAcvUFae_F6bbV2vQNu32qxNG9t964Bgg6NZeWRAVLPsWYAYWAFiV0YQa1F_pwNgxk1LofAoS2WXSTWK4lP4x5GzjoSL5Nqtp5Y-hu_v84tut5aYzSjRirBKX4hYLwjA";
         String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQxNDUsImV4cCI6MTYwODAzMTM0NSwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.dyeBv4YsBWieM1igkEZ1Zp9HVgymrAWUUwK3stMEyKAszTmF-xAb-4zet2FzOPz-5WqpoZWm9hOsmvgnbDEJlrVgGLhT13WEzdrIfMg_AE-ENItuQPB37tf4TuC1mn6SfxGapR5Vrj8HfjDKnaksUNXjmLs9K3Eip1bVc2TtR5IaWOnVWpi_SXgR2MSCo49mFEGH22rw6aRzmgBcSyEzQTgUI62SxvuM4M_84WA7o0NJqfTi17j6SRlI-XQlo7Y4fTt-82W7wd9BZWzqimuKvB2iOkHhsjL272cnFRsxsicRtUWvk4cl_GDOXtYV_ps4NmRr0YjJSXgf2RPpihjQRg";
-        String token3 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgyNTg4NDEsImV4cCI6MTYwODI2NjA0MSwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.aS_HMmBzeURg5AIC_4T6KrQJUWEtgQzPx2gasFv973EYehYf1pSq3gqqAvE_FoK2e79a2YbtkRHH88z9m8GN-2NR4ZuE0kR0SkqMg5b-ZklysS03uPq3Us5yNEFs21wAcSmBgXjcaGO_RaqOpwwuSTomZakKXsgSOYZQJUMowoPwqHZIGIciEPFcFv_sfXbGJwR3HdKayp-Fn7QhdgEmOgZpmKSUhAz2_0nijaa0fWw2goIrjGDc0emADSIawqpufk2XD-CDp4hJ5yySHu4VQ-vFccwc2LlLcACIUGGOSKA-n05sgYWAZAfAosEkxBeUSrfFGD2vX7Q2JapSHjSdFQ";
+        String token3 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgyNjkzMjQsImV4cCI6MTYwODI3NjUyNCwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.ZT3GQpjofWpGppdu6yPT-4uNdCbvZDbyV6I0iz5X9AIrrLfLrB4ExP5S8amE80LoFeNASVKg_oVhzEaZMPJ11mWvgcsLRg5R_T8tQ8sNkswL3THeJZFcAm2rBd6AOgXsn_9QHBY7QFjRmJaknFD2e0-t1Yw6lzPiQKyr-e_OypFMPzoX4o-M6B6N-ljPfsw4AFSH-1CV31TGiypkN26slobfFsViEWzxGoLZAPjF7EZF15EyhXyj1ImeG00OCpkOaJrVS_rSkt-FKF6dg0MEWZhzlSz0kFQaTpAzvu_zLzA4ZMY6o2oSs8mv7AYd0cOJroTczwPL-DXk5euxsoyzNQ";
         sharedSettings.set_something_string("token1",token1);
         sharedSettings.set_something_string("token2",token2);
         sharedSettings.set_something_string("token3",token3);
@@ -250,8 +250,8 @@ public class ChatClientIO extends Service {
             Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {}.getType();
             ArrayList<ChatRoomModel> chatRoomModels = gson.fromJson(args[0].toString(),chatroom_type);
             for (ChatRoomModel chatRoomModel : chatRoomModels){
-                Log.d(TAG, "여기오냐");
-                sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()),gson.toJson(chatRoomModels));
+                Log.d(TAG, "여기"+gson.toJson(chatRoomModel));
+                sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()),gson.toJson(chatRoomModel));
             }
 
 

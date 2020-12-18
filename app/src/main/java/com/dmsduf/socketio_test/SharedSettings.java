@@ -9,7 +9,10 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 import static com.dmsduf.socketio_test.chat.ChatClientIO.gson;
 
 public class SharedSettings {
@@ -35,6 +38,11 @@ public class SharedSettings {
     public String get_chatroom_info(String room_idx){
         return  sharedPreferences_chatroom.getString(room_idx,"없음");
 
+    }
+    public List<Object> get_chatroom_all(){
+        List<Object> a = Arrays.asList(sharedPreferences_chatroom.getAll().values().toArray());
+
+        return a;
     }
     public void set_chatroom_info(String chatroom_idx ,String chatroom_model){
         chatroom_editor.putString(chatroom_idx,chatroom_model);
