@@ -64,14 +64,14 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((view_holder)holder).last_message.setText(chatRoomModel.get(position).getContent());
+        ((view_holder)holder).last_message.setText(chatRoomModel.get(position).getLast_message());
         ((view_holder)holder).chat_list_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //소켓에 방번호 주어서 방 입장신호 emit하기
 //                SharedSettings sharedSettings = new SharedSettings(context,"user_info");
                 //입장하는 순간 방 idx를 벼수에 담는다..
-                current_room_idx  = chatRoomModel.get(position).getChatroom_idx();
+                current_room_idx  = chatRoomModel.get(position).getIdx();
 
 //                sharedSettings.set_something_int("current_room_idx",current_room_idx);
 
@@ -85,15 +85,15 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ((view_holder)holder).creator.setText(chatRoomModel.get(position).getCreator_nickname());
         ((view_holder)holder).room_title.setText(chatRoomModel.get(position).getRoom_name());
         ((view_holder)holder).time.setText(chatRoomModel.get(position).getCreated_at());
-        ((view_holder)holder).recycler_chat_list_see_count.setText(chatRoomModel.get(position).getNone_read_count()+"");
+        ((view_holder)holder).recycler_chat_list_see_count.setText("1");
 
     }
     public void update_new_message(ChattingModel chattingModel){
         for (int i= 0 ; i<chatRoomModel.size();i++){
-            Log.d(TAG,"바"+chatRoomModel.get(i).getChatroom_idx()+"/"+chattingModel.getChatroom_idx());
-            if (chatRoomModel.get(i).getChatroom_idx()==chattingModel.getChatroom_idx()){
+            Log.d(TAG,"바"+chatRoomModel.get(i).getIdx()+"/"+chattingModel.getChatroom_idx());
+            if (chatRoomModel.get(i).getIdx()==chattingModel.getChatroom_idx()){
                 Log.d(TAG,"바뀌어야할 채팅방 찾음");
-                chatRoomModel.get(i).setContent(chattingModel.getContent());
+                chatRoomModel.get(i).setLast_message(chattingModel.getContent());
                 chatRoomModel.get(i).setCreated_at(chattingModel.getCreated_at());
 
                 break;
