@@ -3,27 +3,26 @@ package com.dmsduf.socketio_test.data_list;
 import java.util.List;
 
 public class ChatRoomModel {
+    int idx; //채팅방의 인덱스
     int card_idx;  //모임 인덱스
-    int chatroom_idx;
+    int creator_idx; //채팅방 만든사람 인덱스
+    String kinds; //채팅방 종류 (일반채팅,친구와채팅)
+    String creator_profile; //만든사람의 프로필
+    String creator_nickname; //만든사람 닉네임
+    String room_name; //방 제목
+    String last_message; //마지막 메시지
+    List<TagModel> card_tag_list; //태그
+    List<UserModel> chatroom_users; //채팅방에 참여중인 인원 내역
+    CardModel card; //채팅방의 카드정보
+    String created_at;// 채팅방이 만들어진 시간
+    String updated_at; // 채팅방 수정된 시간
 
-    String chatrooom_type; //채팅방 타입 (일반채팅,친구와채팅,비 친구와 채팅)
-    List<TagModel> card_tag;
-
-
-
-    String creator_profile;
-    String creator_nickname;
-    String room_name;
-    String created_at;
-    String content;
-    int none_read_count;
-
-    public int getNone_read_count() {
-        return none_read_count;
+    public int getIdx() {
+        return idx;
     }
 
-    public void setNone_read_count(int none_read_count) {
-        this.none_read_count = none_read_count;
+    public void setIdx(int idx) {
+        this.idx = idx;
     }
 
     public int getCard_idx() {
@@ -34,28 +33,20 @@ public class ChatRoomModel {
         this.card_idx = card_idx;
     }
 
-    public int getChatroom_idx() {
-        return chatroom_idx;
+    public int getCreator_idx() {
+        return creator_idx;
     }
 
-    public void setChatroom_idx(int chatroom_idx) {
-        this.chatroom_idx = chatroom_idx;
+    public void setCreator_idx(int creator_idx) {
+        this.creator_idx = creator_idx;
     }
 
-    public String getChatrooom_type() {
-        return chatrooom_type;
+    public String getKinds() {
+        return kinds;
     }
 
-    public void setChatrooom_type(String chatrooom_type) {
-        this.chatrooom_type = chatrooom_type;
-    }
-
-    public List<TagModel> getCard_tag() {
-        return card_tag;
-    }
-
-    public void setCard_tag(List<TagModel> card_tag) {
-        this.card_tag = card_tag;
+    public void setKinds(String kinds) {
+        this.kinds = kinds;
     }
 
     public String getCreator_profile() {
@@ -74,12 +65,12 @@ public class ChatRoomModel {
         this.creator_nickname = creator_nickname;
     }
 
-    public String getContent() {
-        return content;
+    public String getRoom_name() {
+        return room_name;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setRoom_name(String room_name) {
+        this.room_name = room_name;
     }
 
     public String getCreated_at() {
@@ -90,28 +81,61 @@ public class ChatRoomModel {
         this.created_at = created_at;
     }
 
+    public String getUpdated_at() {
+        return updated_at;
+    }
 
-    public ChatRoomModel(int card_idx, int chatroom_idx, String chatrooom_type, List<TagModel> card_tag, String creator_profile, String creator_nickname, String content, String created_at,int none_read_count) {
+    public void setUpdated_at(String updated_at) {
+        this.updated_at = updated_at;
+    }
+
+    public String getLast_message() {
+        return last_message;
+    }
+
+    public void setLast_message(String last_message) {
+        this.last_message = last_message;
+    }
+
+    public List<TagModel> getCard_tag_list() {
+        return card_tag_list;
+    }
+
+    public void setCard_tag_list(List<TagModel> card_tag_list) {
+        this.card_tag_list = card_tag_list;
+    }
+
+    public List<UserModel> getChatroom_users() {
+        return chatroom_users;
+    }
+
+    public void setChatroom_users(List<UserModel> chatroom_users) {
+        this.chatroom_users = chatroom_users;
+    }
+
+    public CardModel getCard() {
+        return card;
+    }
+
+    public void setCard(CardModel card) {
+        this.card = card;
+    }
+
+
+
+    public ChatRoomModel(int idx, int card_idx, int creator_idx, String kinds, String creator_profile, String creator_nickname, String room_name, String created_at, String updated_at, String last_message, List<TagModel> card_tag_list, List<UserModel> chatroom_users, CardModel card) {
+        this.idx = idx;
         this.card_idx = card_idx;
-        this.chatroom_idx = chatroom_idx;
-        this.chatrooom_type = chatrooom_type;
-        this.card_tag = card_tag;
+        this.creator_idx = creator_idx;
+        this.kinds = kinds;
         this.creator_profile = creator_profile;
         this.creator_nickname = creator_nickname;
-        this.content = content;
-        this.created_at = created_at;
-        this.none_read_count = none_read_count;
-
-    }
-
-    public String getRoom_name() {
-        return room_name;
-    }
-
-    public void setRoom_name(String room_name) {
         this.room_name = room_name;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
+        this.last_message = last_message;
+        this.card_tag_list = card_tag_list;
+        this.chatroom_users = chatroom_users;
+        this.card = card;
     }
-
-
-
 }

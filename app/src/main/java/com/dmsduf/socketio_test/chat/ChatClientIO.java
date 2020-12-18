@@ -173,7 +173,7 @@ public class ChatClientIO extends Service {
 
         String token1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQ2NDgsImV4cCI6MTYwODAzMTg0OCwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoxLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.h8Six_UkIoZNEnBp-JHnXm1cLX-xNX8nDx6JhHefnNlA9IQt9kOjk7s4MNwSi9eVCKYdyGjAZXd8c8H0HCAOlwl8sHQIV1LlavVK9Qx7icJis9_jJXfVOgSJLmgpMc8P-6v6wIEHFU0mGeVxrpX1SILpKKA-Y9PAnNzyulHL59R7w3nLluS6a-OWlMeB7jWwASHw7hzHVSKxA0_PuZ-SHgtAcvUFae_F6bbV2vQNu32qxNG9t964Bgg6NZeWRAVLPsWYAYWAFiV0YQa1F_pwNgxk1LofAoS2WXSTWK4lP4x5GzjoSL5Nqtp5Y-hu_v84tut5aYzSjRirBKX4hYLwjA";
         String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQxNDUsImV4cCI6MTYwODAzMTM0NSwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.dyeBv4YsBWieM1igkEZ1Zp9HVgymrAWUUwK3stMEyKAszTmF-xAb-4zet2FzOPz-5WqpoZWm9hOsmvgnbDEJlrVgGLhT13WEzdrIfMg_AE-ENItuQPB37tf4TuC1mn6SfxGapR5Vrj8HfjDKnaksUNXjmLs9K3Eip1bVc2TtR5IaWOnVWpi_SXgR2MSCo49mFEGH22rw6aRzmgBcSyEzQTgUI62SxvuM4M_84WA7o0NJqfTi17j6SRlI-XQlo7Y4fTt-82W7wd9BZWzqimuKvB2iOkHhsjL272cnFRsxsicRtUWvk4cl_GDOXtYV_ps4NmRr0YjJSXgf2RPpihjQRg";
-        String token3 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQ4ODMsImV4cCI6MTYwODAzMjA4MywidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjozLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.tzzP-gCyU339r3snP78TYyPJb9a43IE7d9V3QMnUgZHxENc8S1JWtlI678RL9XChMIYGcOgxLyMIo-9axv8mWXDdqU69bxW9pikntvk83Jqyk2yZr78aOHRRBCYfECHxnbjbZXhrtMMZX6NrSblxnQdFI5bljI89tVZdmpNdzGmcKwXUWjMAU4DSoagnnK6W9jJExhC9hME2Zc50xIbShbenICoLQxjG-Bv8EAfuqxE3ocMZFmZW2tl3awMyl4jwNkgsO3on6yd_yyOqO4Y_ZamNjV3MIX6EK7uCkqFKLuszotNwAFs_ct6Bc4KwCNaxcneDvXqssoV6iYB6FbHjpA";
+        String token3 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgyNTg4NDEsImV4cCI6MTYwODI2NjA0MSwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.aS_HMmBzeURg5AIC_4T6KrQJUWEtgQzPx2gasFv973EYehYf1pSq3gqqAvE_FoK2e79a2YbtkRHH88z9m8GN-2NR4ZuE0kR0SkqMg5b-ZklysS03uPq3Us5yNEFs21wAcSmBgXjcaGO_RaqOpwwuSTomZakKXsgSOYZQJUMowoPwqHZIGIciEPFcFv_sfXbGJwR3HdKayp-Fn7QhdgEmOgZpmKSUhAz2_0nijaa0fWw2goIrjGDc0emADSIawqpufk2XD-CDp4hJ5yySHu4VQ-vFccwc2LlLcACIUGGOSKA-n05sgYWAZAfAosEkxBeUSrfFGD2vX7Q2JapSHjSdFQ";
         sharedSettings.set_something_string("token1",token1);
         sharedSettings.set_something_string("token2",token2);
         sharedSettings.set_something_string("token3",token3);
@@ -246,6 +246,7 @@ public class ChatClientIO extends Service {
         //ex)다른사람에게 메시지를 받았을떄
         socket.on(S2C + "connect_complete", args -> {
             Log.d(TAG,args[0].toString());
+            Log.d(TAG,args[1].toString());
             //로그인 이후 채팅메시지처리...
         });
 
@@ -306,7 +307,7 @@ public class ChatClientIO extends Service {
             }
         });
         //친구들중 한명의 상태가 바뀌었을때 알림받는곳
-        socket.on(S2C + "update_user", args -> {
+        socket.on(S2C + "update_user_state", args -> {
             Log.d(TAG,"어떤사람이 업데이트되었어용"+is_mainfriend);
             if(is_mainfriend){
 
@@ -338,7 +339,7 @@ public class ChatClientIO extends Service {
             chat_datas = gson.fromJson(sharedSettings.get_chatroom_messages(String.valueOf(room_idx)), type);
             chat_datas.add(chattingModel);
         }
-        //쉐어드에 저장된 메시지가 전혀없을경우 ( 첫메시지일경우)
+        //쉐어드에 저장된 메시지가 전혀없을경우 (첫메시지일경우)
         else{
             chat_datas.add(chattingModel);
         }

@@ -1,24 +1,30 @@
 package com.dmsduf.socketio_test.data_list;
 
 public class UserModel {
-    String nickname;
     int idx;
+    String nickname;
+    String profile_photo_path;
 
 
 
 
 
-    int op_idx;
-
-
-    public  UserModel(String nickname, int idx) {
-        this.nickname = nickname;
-        this.idx = idx;
+    public String getProfile_photo_path() {
+        return profile_photo_path;
     }
-    public  UserModel(int idx,int op_idx){
-        this.idx = idx;
-        this.op_idx=op_idx;
 
+    public void setProfile_photo_path(String profile_photo_path) {
+        this.profile_photo_path = profile_photo_path;
+    }
+
+    public UserModel(int idx, String nickname, String profile_photo_path) {
+        this.idx = idx;
+        this.nickname = nickname;
+        this.profile_photo_path = profile_photo_path;
+    }
+
+    public  UserModel(int idx){
+        this.idx = idx;
     }
 
     public String getNickname() {
