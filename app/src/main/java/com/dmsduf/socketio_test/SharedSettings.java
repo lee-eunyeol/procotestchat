@@ -62,7 +62,8 @@ public class SharedSettings {
     }
     //채팅메시지하나만왔을떄작업하는부분
     public void set_chatroom_messages(String room_idx, String chattingModels){
-        Log.d(TAG,"추가하는메시지"+chattingModels);
+
+        Log.d(TAG,"방번호: "+room_idx+"저장되는메시지 : "+chattingModels);
         String messages = get_chatroom_messages(room_idx);
         if(messages.equals("없음")) {
             chat_editor.putString(room_idx,chattingModels);

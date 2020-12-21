@@ -7,10 +7,10 @@ public class ChattingModel {
     int idx; //메시지의 idx
     int chatroom_idx; //참여중인 방
     int user_idx; //보낸사람 idx
-    String nickname; //보낸사람 닉네임
-    String content; //메세지내용
     String kinds;  //채팅메시지종류
     String read_users;   //읽은 사람들
+    String nickname; //보낸사람 닉네임
+    String content; //메세지내용
     String created_at;  //서버에서 보낸 시간
     Long front_created_at;  //프론트에서 실제로 보낸 시간
     String TAG = "ChattingModel";

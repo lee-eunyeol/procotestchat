@@ -174,7 +174,7 @@ public class ChattingActivity extends AppCompatActivity {
         String formatDate = mFormat.format(mReDate);
 
         //임시 채팅생성
-        ChattingModel ChattingModel = new ChattingModel(-1,room_idx,user_idx,"C"+"[p]",String.valueOf(user_idx),nickname,message,formatDate,send_timemills);
+        ChattingModel ChattingModel = new ChattingModel(-1,room_idx,user_idx,"C",String.valueOf(user_idx),nickname,message,formatDate,send_timemills);
         ChatClientIO.emit_socket(ChattingActivity.this,"send_message",gson.toJson(ChattingModel), new Ack() {
             @Override
             public void call(Object... args) {

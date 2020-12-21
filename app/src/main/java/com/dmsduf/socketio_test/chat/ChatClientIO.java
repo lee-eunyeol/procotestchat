@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,12 +14,16 @@ import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.dmsduf.socketio_test.Notification_EY;
+import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.UserModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
@@ -27,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +60,7 @@ public class ChatClientIO extends Service {
     String S2C = "server_to_client";
     String url_local = "http://192.168.56.1:3001";
     String url_EY = "https://15.165.252.235:3001";
-    String url_iwinv =  "http://49.247.214.168:3001";
+    String url_iwinv = "http://49.247.214.168:3001";
     Notification_EY notification;
     SharedSettings sharedSettings;
 
@@ -106,7 +112,7 @@ public class ChatClientIO extends Service {
         init_socket_events(); //채팅관련 소켓 이벤트관련 함수선언
 
         socket.connect();
-        
+
 
         return super.onStartCommand(intent, flags, startId);
 
@@ -174,15 +180,15 @@ public class ChatClientIO extends Service {
 
         String token1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQ2NDgsImV4cCI6MTYwODAzMTg0OCwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoxLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.h8Six_UkIoZNEnBp-JHnXm1cLX-xNX8nDx6JhHefnNlA9IQt9kOjk7s4MNwSi9eVCKYdyGjAZXd8c8H0HCAOlwl8sHQIV1LlavVK9Qx7icJis9_jJXfVOgSJLmgpMc8P-6v6wIEHFU0mGeVxrpX1SILpKKA-Y9PAnNzyulHL59R7w3nLluS6a-OWlMeB7jWwASHw7hzHVSKxA0_PuZ-SHgtAcvUFae_F6bbV2vQNu32qxNG9t964Bgg6NZeWRAVLPsWYAYWAFiV0YQa1F_pwNgxk1LofAoS2WXSTWK4lP4x5GzjoSL5Nqtp5Y-hu_v84tut5aYzSjRirBKX4hYLwjA";
         String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQxNDUsImV4cCI6MTYwODAzMTM0NSwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.dyeBv4YsBWieM1igkEZ1Zp9HVgymrAWUUwK3stMEyKAszTmF-xAb-4zet2FzOPz-5WqpoZWm9hOsmvgnbDEJlrVgGLhT13WEzdrIfMg_AE-ENItuQPB37tf4TuC1mn6SfxGapR5Vrj8HfjDKnaksUNXjmLs9K3Eip1bVc2TtR5IaWOnVWpi_SXgR2MSCo49mFEGH22rw6aRzmgBcSyEzQTgUI62SxvuM4M_84WA7o0NJqfTi17j6SRlI-XQlo7Y4fTt-82W7wd9BZWzqimuKvB2iOkHhsjL272cnFRsxsicRtUWvk4cl_GDOXtYV_ps4NmRr0YjJSXgf2RPpihjQRg";
-        String token3 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgyNjkzMjQsImV4cCI6MTYwODI3NjUyNCwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.ZT3GQpjofWpGppdu6yPT-4uNdCbvZDbyV6I0iz5X9AIrrLfLrB4ExP5S8amE80LoFeNASVKg_oVhzEaZMPJ11mWvgcsLRg5R_T8tQ8sNkswL3THeJZFcAm2rBd6AOgXsn_9QHBY7QFjRmJaknFD2e0-t1Yw6lzPiQKyr-e_OypFMPzoX4o-M6B6N-ljPfsw4AFSH-1CV31TGiypkN26slobfFsViEWzxGoLZAPjF7EZF15EyhXyj1ImeG00OCpkOaJrVS_rSkt-FKF6dg0MEWZhzlSz0kFQaTpAzvu_zLzA4ZMY6o2oSs8mv7AYd0cOJroTczwPL-DXk5euxsoyzNQ";
-        sharedSettings.set_something_string("token1",token1);
-        sharedSettings.set_something_string("token2",token2);
-        sharedSettings.set_something_string("token3",token3);
-        opts.query = "token="+token3;
+        String token3 = getResources().getString(R.string.token);
+        sharedSettings.set_something_string("token1", token1);
+        sharedSettings.set_something_string("token2", token2);
+        sharedSettings.set_something_string("token3", token3);
+        opts.query = "token=" + token3;
 
         try {
 
-            socket = IO.socket(url_local,opts);
+            socket = IO.socket(url_local, opts);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -199,11 +205,11 @@ public class ChatClientIO extends Service {
                 Log.d(TAG, "EVENT_CONNECT");
                 Log.d(TAG, "연결되었습니다!!");
 
-                Log.d(TAG,is_chatroom+"연결됐을때 채팅방에있는지?");
+                Log.d(TAG, is_chatroom + "연결됐을때 채팅방에있는지?");
                 //만약 어떤 채팅방에 들어온 상태에서 소켓연결이 됬을경우 방 참여도 해준다. 
                 ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
                 String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getShortClassName();
-                if(topstack_name.equals(".chat.ChattingActivity")){
+                if (topstack_name.equals(".chat.ChattingActivity")) {
 
                     Intent intent = new Intent("socket_connected");
                     LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
@@ -232,7 +238,12 @@ public class ChatClientIO extends Service {
                 Log.d(TAG, "EVENT_CONNECT_TIMEOUT");
             }
         });
-
+        socket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d("서버응답에러", args[0].toString());
+            }
+        });
 
     }
 
@@ -244,23 +255,43 @@ public class ChatClientIO extends Service {
         //엑티비티 매니져 현재 최상단 스택의 위치를 알기위해 사용
         ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getClassName();
-        //ex)다른사람에게 메시지를 받았을떄
+        //소켓연결완료시  받는 이벤트
         socket.on(S2C + "connect_complete", args -> {
-            Log.d(TAG,args[0].toString());
-            Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {}.getType();
-            ArrayList<ChatRoomModel> chatRoomModels = gson.fromJson(args[0].toString(),chatroom_type);
-            for (ChatRoomModel chatRoomModel : chatRoomModels){
-                Log.d(TAG, "여기"+gson.toJson(chatRoomModel));
-                sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()),gson.toJson(chatRoomModel));
+            //
+            //채팅방정보저장
+            if (!args[1].toString().equals("chatrooms")) {
+                Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {
+                }.getType();
+                ArrayList<ChatRoomModel> chatRoomModels = gson.fromJson(args[0].toString(), chatroom_type);
+                for (ChatRoomModel chatRoomModel : chatRoomModels) {
+                    sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()), gson.toJson(chatRoomModel));
+                }
+            }
+            //메시지내역저장
+            if (!args[1].toString().equals("no_messages")) {
+
+            }
+            try {
+                JSONObject jsonObject = new JSONObject(args[1].toString());
+                Iterator i = jsonObject.keys();
+                while (i.hasNext()) {
+                    String key = i.next().toString();
+                    sharedSettings.set_chatroom_message(key,jsonObject.get(key).toString());
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
 
-            Log.d(TAG,args[1].toString());
-            //로그인 이후 채팅메시지처리...
         });
 
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
+
+
+            Ack ack = (Ack) args[1];
+            ack.call("메시지콜백완료");
             String data = (String) args[0];
             ChattingModel chattingModel = gson.fromJson(data, ChattingModel.class);
 
@@ -280,7 +311,7 @@ public class ChatClientIO extends Service {
                 LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
             }
             //채팅방안에는 없지만 소켓이 연결되어있고 채팅목록을 보고있는 상태라면 채팅방 목록 업데이트
-            else if ( is_chatroom && socket.connected() ) {
+            else if (is_chatroom && socket.connected()) {
                 Log.d(TAG, "채팅방목록업데이트");
                 Intent intent = new Intent("go_chatroom");
                 intent.putExtra("message", data);
@@ -302,8 +333,8 @@ public class ChatClientIO extends Service {
             String read_last_idx = args[2].toString();
             String user_idx = args[0].toString();
             String room_idx = args[1].toString();
-            Log.d("리시버", user_idx+"번 유저가"+room_idx+"번 채팅방에 들어왔어요. 가장 최근 idx는 "+read_last_idx+"입니다");
-            sharedSettings.update_chatroom_message(user_idx,room_idx,read_last_idx);
+            Log.d("리시버", user_idx + "번 유저가" + room_idx + "번 채팅방에 들어왔어요. 가장 최근 idx는 " + read_last_idx + "입니다");
+            sharedSettings.update_chatroom_message(user_idx, room_idx, read_last_idx);
 
             //만약 지금 업데이트된 채팅방을 보고 있다면 메시지를 실시간으로 없데이트 합니다.
             if (is_chatting_room && current_room_idx == Integer.parseInt(room_idx)) {
@@ -317,12 +348,12 @@ public class ChatClientIO extends Service {
         });
         //친구들중 한명의 상태가 바뀌었을때 알림받는곳
         socket.on(S2C + "update_user_state", args -> {
-            Log.d(TAG,"어떤사람이 업데이트되었어용"+is_mainfriend);
-            if(is_mainfriend){
+            Log.d(TAG, "어떤사람이 업데이트되었어용" + is_mainfriend);
+            if (is_mainfriend) {
 
                 Intent intent = new Intent("update_user");
                 //가장 최근에 받은 메시지 idx를 보내기
-                intent.putExtra("state",args[0].toString());
+                intent.putExtra("state", args[0].toString());
                 intent.putExtra("update_content", args[1].toString());
                 LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
             }
@@ -331,29 +362,29 @@ public class ChatClientIO extends Service {
         });
 
 
-
-
     }
+
     //메시지를 받았을때 , 채팅 메시지를 알맞게 저장하는 메소드
     private void save_chat_data(ChattingModel chattingModel) {
         int room_idx = chattingModel.getChatroom_idx();
-        Type type = new TypeToken<List<ChattingModel>>() {}.getType();
+        Type type = new TypeToken<List<ChattingModel>>() {
+        }.getType();
         ArrayList<ChattingModel> chat_datas = new ArrayList<>();
 
         //메시지 읽음/안읽음 로직
         //처음 메시지를 받았을떄 채팅방에 있는 상태가 아니라면  안읽은메시지로 저장이 된다.
         //그 방에대한 않읽은 메시지 내역이 저장되어 있는경우 안읽은 메시지를추가 한다.
-        if(!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
-            Log.d(TAG,"받은거"+sharedSettings.get_chatroom_messages(String.valueOf(room_idx)));
+        if (!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
+            Log.d(TAG, "받은거" + sharedSettings.get_chatroom_messages(String.valueOf(room_idx)));
             chat_datas = gson.fromJson(sharedSettings.get_chatroom_messages(String.valueOf(room_idx)), type);
             chat_datas.add(chattingModel);
         }
         //쉐어드에 저장된 메시지가 전혀없을경우 (첫메시지일경우)
-        else{
+        else {
             chat_datas.add(chattingModel);
         }
         //새로 온 메시지 추가
-        sharedSettings.set_chatroom_message(String.valueOf(room_idx),gson.toJson(chat_datas));
+        sharedSettings.set_chatroom_message(String.valueOf(room_idx), gson.toJson(chat_datas));
 
     }
 
@@ -365,7 +396,7 @@ public class ChatClientIO extends Service {
             Log.d("socket.emit!", guide + "::" + object.toString());
             switch (guide) {
                 case "user_login":
-                    socket.emit(C2S + "user_login", object,ack);
+                    socket.emit(C2S + "user_login", object, ack);
 
                     break;
                 case "user_logout":
@@ -376,7 +407,7 @@ public class ChatClientIO extends Service {
                     break;
 
                 case "leave_room":
-                        socket.emit(C2S + "leave_room", object);
+                    socket.emit(C2S + "leave_room", object);
                     break;
                 case "send_message":
                     socket.emit(C2S + "message", object, ack);
@@ -392,18 +423,17 @@ public class ChatClientIO extends Service {
                     }
                     break;
                 case "update_user_state":
-                    socket.emit(C2S+"update_user_state",object,ack);
+                    socket.emit(C2S + "update_user_state", object, ack);
                     break;
                 case "get_rooms":
-                    socket.emit(C2S+"get_rooms",object,ack);
+                    socket.emit(C2S + "get_rooms", object, ack);
                     break;
                 case "make_chatroom":
-                    socket.emit(C2S+"make_chatroom",object,"1");
+                    socket.emit(C2S + "make_chatroom", object, "1");
                     break;
             }
-        }
-        else{
-            Log.d("소켓연결","소켓연결이 끊긴상태!");
+        } else {
+            Log.d("소켓연결", "소켓연결이 끊긴상태!");
         }
     }
 
