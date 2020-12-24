@@ -33,6 +33,7 @@ import com.dmsduf.socketio_test.adapter.ChattingNaviAdapter;
 import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.RoomModel;
+import com.dmsduf.socketio_test.data_list.UserChatModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -228,7 +229,7 @@ public class ChattingActivity extends AppCompatActivity {
             int read_last_idx = Integer.parseInt(intent.getStringExtra("read_last_idx"));
             int user_idx = Integer.parseInt(intent.getStringExtra("user_idx"));
 
-            ChattingAdapter.change_message_user_in(read_last_idx,user_idx);
+//            ChattingAdapter.change_message_user_in(read_last_idx,user_idx);
 
 
         }};
@@ -245,15 +246,16 @@ public class ChattingActivity extends AppCompatActivity {
 public void join_room_to_server(){
     //소켓이 연결되어있을경우에만 업데이트
     Log.d("join_room",socket.connected()+"");
+    UserChatModel userChatModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class).getuser(sharedSettings.get_something_int("user_idx"));
 
     if(socket.connected()) {
-        ChatClientIO.emit_socket(ChattingActivity.this, "join_room", room_idx, new Ack() {
-                    @Override
-                    public void call(Object... args) {
+        socket.emit( "client_to_serverjoin_room", gson.toJson(userChatModel),current_room_idx, new Ack() {
+            @Override
+            public void call(Object... args) {
 
-                    }
-                }
-        );
+            }
+        });
+
     }
 }
     //생명주기-----------------------
@@ -273,12 +275,6 @@ public void join_room_to_server(){
             Type type = new TypeToken<List<ChattingModel>>() {}.getType();
             chat_data = gson.fromJson(sharedSettings.get_chatroom_messages(String.valueOf(room_idx)), type);
             //내가 안읽었던 메시지들은 전부 읽음처리 해준다.
-            for(int i = chat_data.size()-1;i>=0;i--){
-                if (chat_data.get(i).getIdx()>=chatRoomModel.getRead_last_idx()) {
-                    chat_data.get(i).setRead_users(chat_data.get(i).getRead_users()+","+user_idx);;
-                }
-
-            }
         }
         else{
             Log.d(TAG,"[onstart]저장된 채팅메시지내역이 없어요.");

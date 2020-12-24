@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.UserChatModel;
 import com.google.gson.reflect.TypeToken;
@@ -92,30 +93,11 @@ public class SharedSettings {
 
     }
     //쉐어드에 저장되어있는 메시지를 읽음처리 해주는 구간
-    public void update_chatroom_message(String user_idx,String room_idx,String read_last_idx){
-        String messages = get_chatroom_messages(room_idx);
-
-        Log.d(TAG,"[]메시지"+messages+room_idx);
-        if(messages.equals("없음")){
-            return;
-        }
-        else{
-
-            Type type = new TypeToken<List<ChattingModel>>() {}.getType();
-            ArrayList<ChattingModel> chat_data = gson.fromJson(messages, type);
-            for(int i=chat_data.size()-1;i>=0;i--){
-                Log.d("읽음처리채팅idx",chat_data.get(i).getIdx()+"");
-                //만약 전체 채팅메시지를 읽었다면
-                if(chat_data.get(i).getIdx()<=Integer.parseInt(read_last_idx)){
-                    break;
-                }
-                else{
-                    //읽음처리 후 저장
-                    chat_data.get(i).setRead_count_plus(Integer.parseInt(user_idx));
-                }
-            }
-            set_chatroom_message(room_idx,gson.toJson(chat_data));
-        }
+    public void update_chatroom_message(UserChatModel userChatModel,String room_idx){
+        ChatRoomModel chatRoomModel = gson.fromJson(sharedPreferences_chatroom.getString(room_idx,"없음"), ChatRoomModel.class);
+        chatRoomModel.setuser(userChatModel);
+        chatroom_editor.putString(room_idx,gson.toJson(chatRoomModel));
+        chatroom_editor.commit();
 
     }
     //------------

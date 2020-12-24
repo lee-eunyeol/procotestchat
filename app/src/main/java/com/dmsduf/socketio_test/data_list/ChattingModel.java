@@ -8,7 +8,6 @@ public class ChattingModel {
     int chatroom_idx; //참여중인 방
     int user_idx; //보낸사람 idx
     String kinds;  //채팅메시지종류
-    String read_users;   //읽은 사람들
     String nickname; //보낸사람 닉네임
     String content; //메세지내용
     String created_at;  //서버에서 보낸 시간
@@ -20,7 +19,7 @@ public class ChattingModel {
         this.chatroom_idx = chatroom_idx;
         this.user_idx = user_idx;
         this.kinds = kinds;
-        this.read_users = read_users;
+
 
         this.nickname = nickname;
         this.content = content;
@@ -80,17 +79,7 @@ public class ChattingModel {
     }
 
 
-    public String getRead_users() {
-        return read_users;
-    }
 
-    public void setRead_users(String read_users) {
-        this.read_users = read_users;
-    }
-    public void setRead_count_plus(int user_idx){
-        this.read_users = this.read_users+","+user_idx;
-
-    }
 
     public int getChatroom_idx() {
         return chatroom_idx;

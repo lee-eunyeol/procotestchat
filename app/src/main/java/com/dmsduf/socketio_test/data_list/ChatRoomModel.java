@@ -1,5 +1,7 @@
 package com.dmsduf.socketio_test.data_list;
 
+import android.util.Log;
+
 import java.util.List;
 
 public class ChatRoomModel {
@@ -115,6 +117,26 @@ public class ChatRoomModel {
 
     public List<UserChatModel> getChatroom_users() {
         return chatroom_users;
+    }
+    public UserChatModel getuser(int user_idx){
+        for(UserChatModel userChatModel :this.chatroom_users){
+            if(userChatModel.getIdx()==user_idx){
+                return userChatModel;
+            }
+        }
+        return new UserChatModel(-1,"없음","아",-1,-1);
+
+    }
+    public void setuser(UserChatModel userChatModeling){
+        for(int i = 0;i<this.chatroom_users.size();i++){
+            if(this.chatroom_users.get(i).getIdx()==userChatModeling.getIdx()){
+                this.chatroom_users.set(i,userChatModeling);
+
+                Log.d("아아ㅏ아","바꿀거찾음");
+            }
+        }
+
+
     }
 
     public void setChatroom_users(List<UserChatModel> chatroom_users) {

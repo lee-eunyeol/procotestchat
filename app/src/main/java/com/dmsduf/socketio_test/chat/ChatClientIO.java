@@ -19,6 +19,7 @@ import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.SharList;
+import com.dmsduf.socketio_test.data_list.UserChatModel;
 import com.dmsduf.socketio_test.data_list.UserModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -186,7 +187,7 @@ public class ChatClientIO extends Service {
 
 
         sharedSettings.set_something_string("token3", tokenuser2);
-        opts.query = "token=" + tokenuser2;
+        opts.query = "token=" + tokenuser1;
 
         opts.transports = new String[] { WebSocket.NAME };
 
@@ -337,19 +338,16 @@ public class ChatClientIO extends Service {
 
         //다른사람이 채팅방에 참여했다는 알림을 준다.
         socket.on(S2C + "join_room", args -> {
-            String read_last_idx = args[2].toString();
-            String user_idx = args[0].toString();
+            UserChatModel userChatModel = gson.fromJson(args[0].toString(),UserChatModel.class);
+            String read_last_idx = String.valueOf(userChatModel.getRead_last_idx());
+            String user_idx = String.valueOf(userChatModel.getIdx());
             String room_idx = args[1].toString();
             Log.d("리시버", user_idx + "번 유저가" + room_idx + "번 채팅방에 들어왔어요. 가장 최근 idx는 " + read_last_idx + "입니다");
-            sharedSettings.update_chatroom_message(user_idx, room_idx, read_last_idx);
+            sharedSettings.update_chatroom_message(userChatModel, room_idx);
 
             //만약 지금 업데이트된 채팅방을 보고 있다면 메시지를 실시간으로 없데이트 합니다.
             if (is_chatting_room && current_room_idx == Integer.parseInt(room_idx)) {
-                Intent intent = new Intent("user_join");
-                //가장 최근에 받은 메시지 idx를 보내기
-                intent.putExtra("read_last_idx", args[0].toString());
-                intent.putExtra("user_idx", args[1].toString());
-                LocalBroadcastManager.getInstance(ChatClientIO.this).sendBroadcast(intent);
+
                 // 쉐어드에 업데이트 된 데이터를 저장하도록 한다.
             }
         });

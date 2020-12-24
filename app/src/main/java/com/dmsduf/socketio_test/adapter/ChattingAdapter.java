@@ -76,7 +76,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             break;
             }
             //읽음횟수 1추가
-            chat_data.get(i-1).setRead_count_plus(user_idx);
+
             Log.d(TAG,"change_message_user_in /메시지내용 :  "+chat_data.get(i-1).getContent());
         }
         notify_with_handler();
@@ -178,10 +178,10 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
-        int current_peoples = 3;
-        //읽은 사람들을 리스트형태로 변환 한다 ( 받는데이터 : 1,2,3,4 를 - > [1,2,3,4]로변환
-        int read_users = chat_data.get(position).getRead_users().split(",").length;
-        int none_read_count = current_peoples - read_users;
+//        int current_peoples = 3;
+//        //읽은 사람들을 리스트형태로 변환 한다 ( 받는데이터 : 1,2,3,4 를 - > [1,2,3,4]로변환
+//        int read_users = chat_data.get(position).getRead_users().split(",").length;
+
 
         switch (holder.getItemViewType()) {
 
@@ -195,11 +195,9 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 } else if (chat_data.get(position).getKinds().contains("[error]")) {
                     ((my_chat_view_holder) holder).count.setText("에러");
                 } else {
-                    if (none_read_count == 0) {
-                        ((my_chat_view_holder) holder).count.setText("");
-                    } else {
+
                         ((my_chat_view_holder) holder).count.setText(String.valueOf(get_chatroom_read_count(chat_data.get(position).getIdx(),roomModel.getChatroom_users())));
-                    }
+
                 }
 
 
@@ -214,11 +212,9 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ((op_chat_view_holder) holder).count.setText("대기중");
 
                 } else {
-                    if (none_read_count == 0) {
-                        ((op_chat_view_holder) holder).count.setText("");
-                    } else {
+
                         ((op_chat_view_holder) holder).count.setText(String.valueOf(get_chatroom_read_count(chat_data.get(position).getIdx(),roomModel.getChatroom_users())));
-                    }
+
                 }
                 ((op_chat_view_holder) holder).time.setText(chat_data.get(position).getCreated_at());
                 break;
