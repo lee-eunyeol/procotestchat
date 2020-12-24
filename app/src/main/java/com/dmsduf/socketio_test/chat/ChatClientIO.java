@@ -18,6 +18,7 @@ import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
+import com.dmsduf.socketio_test.data_list.SharList;
 import com.dmsduf.socketio_test.data_list.UserModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -46,6 +47,7 @@ import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import io.socket.engineio.client.transports.WebSocket;
 import okhttp3.OkHttpClient;
 
 public class ChatClientIO extends Service {
@@ -178,13 +180,16 @@ public class ChatClientIO extends Service {
         IO.setDefaultOkHttpCallFactory(okHttpClient);
         IO.Options opts = new IO.Options();
 
-        String token1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQ2NDgsImV4cCI6MTYwODAzMTg0OCwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoxLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.h8Six_UkIoZNEnBp-JHnXm1cLX-xNX8nDx6JhHefnNlA9IQt9kOjk7s4MNwSi9eVCKYdyGjAZXd8c8H0HCAOlwl8sHQIV1LlavVK9Qx7icJis9_jJXfVOgSJLmgpMc8P-6v6wIEHFU0mGeVxrpX1SILpKKA-Y9PAnNzyulHL59R7w3nLluS6a-OWlMeB7jWwASHw7hzHVSKxA0_PuZ-SHgtAcvUFae_F6bbV2vQNu32qxNG9t964Bgg6NZeWRAVLPsWYAYWAFiV0YQa1F_pwNgxk1LofAoS2WXSTWK4lP4x5GzjoSL5Nqtp5Y-hu_v84tut5aYzSjRirBKX4hYLwjA";
-        String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvdm9sYWUuZ2EiLCJpYXQiOjE2MDgwMjQxNDUsImV4cCI6MTYwODAzMTM0NSwidG9rZW5fdHlwZSI6ImFjY2VzcyIsInVzZXJfaWR4IjoyLCJhdXRoX3JhbmdlIjoibm9ybWFsIiwidHlwZSI6Im5vcm1hbCJ9.dyeBv4YsBWieM1igkEZ1Zp9HVgymrAWUUwK3stMEyKAszTmF-xAb-4zet2FzOPz-5WqpoZWm9hOsmvgnbDEJlrVgGLhT13WEzdrIfMg_AE-ENItuQPB37tf4TuC1mn6SfxGapR5Vrj8HfjDKnaksUNXjmLs9K3Eip1bVc2TtR5IaWOnVWpi_SXgR2MSCo49mFEGH22rw6aRzmgBcSyEzQTgUI62SxvuM4M_84WA7o0NJqfTi17j6SRlI-XQlo7Y4fTt-82W7wd9BZWzqimuKvB2iOkHhsjL272cnFRsxsicRtUWvk4cl_GDOXtYV_ps4NmRr0YjJSXgf2RPpihjQRg";
-        String token3 = getResources().getString(R.string.token);
-        sharedSettings.set_something_string("token1", token1);
-        sharedSettings.set_something_string("token2", token2);
-        sharedSettings.set_something_string("token3", token3);
-        opts.query = "token=" + token3;
+        String tokenuser1 = getResources().getString(R.string.token1);
+        String tokenuser2 =  getResources().getString(R.string.token);;
+        String token76 = getResources().getString(R.string.token76);
+
+
+        sharedSettings.set_something_string("token3", tokenuser2);
+        opts.query = "token=" + tokenuser2;
+
+        opts.transports = new String[] { WebSocket.NAME };
+
 
         try {
 
@@ -259,39 +264,41 @@ public class ChatClientIO extends Service {
         socket.on(S2C + "connect_complete", args -> {
             //
             //채팅방정보저장
-            if (!args[1].toString().equals("chatrooms")) {
+            Log.d(TAG,args[1].toString());
+            Log.d(TAG,args[0].toString());
+            if (!args[0].toString().equals("no_chatrooms")) {
                 Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {
                 }.getType();
                 ArrayList<ChatRoomModel> chatRoomModels = gson.fromJson(args[0].toString(), chatroom_type);
                 for (ChatRoomModel chatRoomModel : chatRoomModels) {
                     sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()), gson.toJson(chatRoomModel));
                 }
+
             }
+            else{Log.d(TAG,"받은채팅방정보없음");}
             //메시지내역저장
-            if (!args[1].toString().equals("no_messages")) {
-
+            if (args[1].toString().equals("no_messages")) {
+            Log.d(TAG,"받은메시지정보없음");
             }
-            try {
-                JSONObject jsonObject = new JSONObject(args[1].toString());
-                Iterator i = jsonObject.keys();
-                while (i.hasNext()) {
-                    String key = i.next().toString();
-                    sharedSettings.set_chatroom_message(key,jsonObject.get(key).toString());
+            else {
+                try {
+                    JSONObject jsonObject = new JSONObject(args[1].toString());
+                    Iterator i = jsonObject.keys();
+                    while (i.hasNext()) {
+                        String key = i.next().toString();
+                        sharedSettings.set_chatroom_message(key, jsonObject.get(key).toString());
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-
 
         });
 
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
 
-
-            Ack ack = (Ack) args[1];
-            ack.call("메시지콜백완료");
             String data = (String) args[0];
             ChattingModel chattingModel = gson.fromJson(data, ChattingModel.class);
 
@@ -348,6 +355,7 @@ public class ChatClientIO extends Service {
         });
         //친구들중 한명의 상태가 바뀌었을때 알림받는곳
         socket.on(S2C + "update_user_state", args -> {
+
             Log.d(TAG, "어떤사람이 업데이트되었어용" + is_mainfriend);
             if (is_mainfriend) {
 
@@ -406,8 +414,11 @@ public class ChatClientIO extends Service {
                     socket.emit(C2S + "join_room", object, ack);
                     break;
 
-                case "leave_room":
-                    socket.emit(C2S + "leave_room", object);
+                case "outfocus_room":
+                    socket.emit(C2S + "outfocus_room", object);
+                    break;
+                case  "leave_room":
+                    socket.emit(C2S+"leave_room",object,ack);
                     break;
                 case "send_message":
                     socket.emit(C2S + "message", object, ack);

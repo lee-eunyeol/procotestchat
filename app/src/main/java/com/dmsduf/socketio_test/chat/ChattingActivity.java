@@ -30,6 +30,7 @@ import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.SharedSettings;
 import com.dmsduf.socketio_test.adapter.ChattingAdapter;
 import com.dmsduf.socketio_test.adapter.ChattingNaviAdapter;
+import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.RoomModel;
 import com.google.gson.Gson;
@@ -267,23 +268,30 @@ public void join_room_to_server(){
         //유저 idx함께 보내준다.
         //저장되어 있던 채팅데이터 및 채팅방 데이터를 받아온다.
 //        sharedSettings.clear();
-
+      ChatRoomModel chatRoomModel =   gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(room_idx)), ChatRoomModel.class);
         if(!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
             Type type = new TypeToken<List<ChattingModel>>() {}.getType();
             chat_data = gson.fromJson(sharedSettings.get_chatroom_messages(String.valueOf(room_idx)), type);
+            //내가 안읽었던 메시지들은 전부 읽음처리 해준다.
+            for(int i = chat_data.size()-1;i>=0;i--){
+                if (chat_data.get(i).getIdx()>=chatRoomModel.getRead_last_idx()) {
+                    chat_data.get(i).setRead_users(chat_data.get(i).getRead_users()+","+user_idx);;
+                }
+
+            }
         }
         else{
             Log.d(TAG,"[onstart]저장된 채팅메시지내역이 없어요.");
             chat_data = new ArrayList<>();
         }
         //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
-        RoomModel roomModel = new RoomModel(1,1,"일반",3);
+        ChatRoomModel roomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class);
         ChattingAdapter = new ChattingAdapter(this,chat_data,user_idx,roomModel);
         chat_recyclerview.setAdapter(ChattingAdapter);
         chat_recyclerview.setLayoutManager(new LinearLayoutManager(this));
 
         //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
-        //소켓이 연결되어있다면 통신을 통해서 추가적으로 메시지 전체를 가져온다.
+        //소켓이 연결되어있다면 통신을 통해서 추가적으로 메시지 전체를 가져온다.--삭제
         if(socket.connected()){
         join_room_to_server();
         }
@@ -297,7 +305,7 @@ public void join_room_to_server(){
     protected void onStop() {
         super.onStop();
         is_chatting_room = false;
-        ChatClientIO.emit_socket(ChattingActivity.this,"leave_room", room_idx, new Ack() {
+        ChatClientIO.emit_socket(ChattingActivity.this,"outfocus_room", room_idx, new Ack() {
             @Override
             public void call(Object... args) {
 

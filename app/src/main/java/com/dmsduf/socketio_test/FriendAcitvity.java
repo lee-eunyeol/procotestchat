@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ import io.socket.client.Ack;
 import static com.dmsduf.socketio_test.chat.ChatClientIO.emit_socket;
 import static com.dmsduf.socketio_test.chat.ChatClientIO.gson;
 import static com.dmsduf.socketio_test.chat.ChatClientIO.is_mainfriend;
+import static com.dmsduf.socketio_test.chat.ChatClientIO.socket;
 
 public class FriendAcitvity extends AppCompatActivity {
     TextView textView;
@@ -100,6 +102,28 @@ public class FriendAcitvity extends AppCompatActivity {
 
             }
         });
+    }
+    String C2S = "client_to_server";
+    public void leave_room(View v){
+        socket.emit( C2S+"leave_room", gson.toJson(new UserModel(2, sharedSettings.get_something_string("user_nickname"), "프로필")), 5, new Ack() {
+            @Override
+            public void call(Object... args) {
+                Log.d("방 나감", args[0].toString());
+
+            }
+        });
+
+    }
+
+
+    public void deligate_leader(View v){
+        socket.emit(C2S + "delegation_leader", gson.toJson(new UserModel(1, "방장", "프로필")),
+                gson.toJson(new UserModel(2, "클라", "프로필")),5, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.d("리더위임",args[0].toString());
+                    }
+                });
     }
     public void chat_TO(View v){
 

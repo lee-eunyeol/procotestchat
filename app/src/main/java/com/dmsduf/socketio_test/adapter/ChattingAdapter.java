@@ -13,16 +13,18 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dmsduf.socketio_test.R;
+import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.ChattingUsersRead;
 import com.dmsduf.socketio_test.data_list.RoomModel;
+import com.dmsduf.socketio_test.data_list.UserChatModel;
 
 import java.util.List;
 
 public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     Context context;
     List<ChattingModel> chat_data;
-    RoomModel roomModel;
+    ChatRoomModel roomModel;
     final static int my_chat = 1;
     final static int opponent_chat = 2;
     final static int speaker = 3;
@@ -112,7 +114,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     }
 
-    public ChattingAdapter(final Context context, final List<ChattingModel> data, int my_idx, RoomModel roomModel) {
+    public ChattingAdapter(final Context context, final List<ChattingModel> data, int my_idx, ChatRoomModel roomModel) {
         this.context = context;
         this.chat_data = data;
         this.my_idx = my_idx;
@@ -134,7 +136,21 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     }
 
+    public int get_chatroom_read_count(int idx , List<UserChatModel> userChatModels){
+        int peoplecount = 0;
+        int read_count= 0;
+        for(UserChatModel userChatModel : userChatModels){
+            int read_start_idx = userChatModel.getRead_start_idx();
+            int read_last_idx =userChatModel.getRead_last_idx();
+            peoplecount++;
+            if(idx>read_start_idx && idx<read_last_idx){
+                read_count++;
+            }
+        }
+        Log.d(TAG,"방번호"+roomModel.getIdx()+"메시지idx: "+read_count+"" + peoplecount+"메시지별인원수");
+        return peoplecount-read_count;
 
+    }
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -162,7 +178,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
-        int current_peoples = roomModel.getRoom_people_count();
+        int current_peoples = 3;
         //읽은 사람들을 리스트형태로 변환 한다 ( 받는데이터 : 1,2,3,4 를 - > [1,2,3,4]로변환
         int read_users = chat_data.get(position).getRead_users().split(",").length;
         int none_read_count = current_peoples - read_users;
@@ -182,7 +198,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (none_read_count == 0) {
                         ((my_chat_view_holder) holder).count.setText("");
                     } else {
-                        ((my_chat_view_holder) holder).count.setText(String.valueOf(none_read_count));
+                        ((my_chat_view_holder) holder).count.setText(String.valueOf(get_chatroom_read_count(chat_data.get(position).getIdx(),roomModel.getChatroom_users())));
                     }
                 }
 
@@ -201,7 +217,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (none_read_count == 0) {
                         ((op_chat_view_holder) holder).count.setText("");
                     } else {
-                        ((op_chat_view_holder) holder).count.setText(String.valueOf(none_read_count));
+                        ((op_chat_view_holder) holder).count.setText(String.valueOf(get_chatroom_read_count(chat_data.get(position).getIdx(),roomModel.getChatroom_users())));
                     }
                 }
                 ((op_chat_view_holder) holder).time.setText(chat_data.get(position).getCreated_at());

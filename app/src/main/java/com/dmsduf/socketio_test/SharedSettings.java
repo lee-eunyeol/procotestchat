@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.dmsduf.socketio_test.data_list.ChattingModel;
+import com.dmsduf.socketio_test.data_list.UserChatModel;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -144,10 +145,13 @@ public class SharedSettings {
         editor.putInt(name,item);
         editor.commit();
     }
+
     public void clear(){
 
         chat_editor.clear();
         chat_editor.commit();
+        chatroom_editor.clear();
+        chatroom_editor.commit();
 
     }
 }
