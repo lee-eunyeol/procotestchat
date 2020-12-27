@@ -19,6 +19,7 @@ import com.dmsduf.socketio_test.data_list.ChattingUsersRead;
 import com.dmsduf.socketio_test.data_list.RoomModel;
 import com.dmsduf.socketio_test.data_list.UserChatModel;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -28,6 +29,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     final static int my_chat = 1;
     final static int opponent_chat = 2;
     final static int speaker = 3;
+    HashMap<Integer,UserChatModel> userchatmodelmap;
     ChattingUsersRead chattingUsersRead;
     String TAG = "채팅어댑터";
     int my_idx;
@@ -120,7 +122,9 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.my_idx = my_idx;
         this.roomModel = roomModel;
         this.handler = new Handler();
-
+        for(UserChatModel userChatModel:roomModel.getChatroom_users()){
+            userchatmodelmap.put(userChatModel.getIdx(),userChatModel);
+        }
 
     }
 
@@ -204,7 +208,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             case opponent_chat:
                 ((op_chat_view_holder) holder).chat.setText(chat_data.get(position).getContent());
-                ((op_chat_view_holder) holder).recycler_op_name.setText(chat_data.get(position).getNickname());
+                ((op_chat_view_holder) holder).recycler_op_name.setText(userchatmodelmap.get(chat_data.get(position).getUser_idx()).getNickname());
 
                 //읽음처리
                 if (chat_data.get(position).getKinds().contains("[pending]")) {

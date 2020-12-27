@@ -270,8 +270,8 @@ public class ChatClientIO extends Service {
         socket.on(S2C + "connect_complete", args -> {
             //
             //채팅방정보저장
-            Log.d(TAG,args[1].toString());
-            Log.d(TAG,args[0].toString());
+            Log.d("ChattingModel",args[1].toString());
+            Log.d("ChatRoomModel",args[0].toString());
             if (!args[0].toString().equals("no_chatrooms")) {
                 Type chatroom_type = new TypeToken<List<ChatRoomModel>>() {
                 }.getType();
