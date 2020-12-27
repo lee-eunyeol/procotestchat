@@ -186,8 +186,9 @@ public class ChattingActivity extends AppCompatActivity {
                 switch (String.valueOf(args[0])){
                     case "[success]메세지보내기" :   //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면 채팅메세지를 업데이트
                         ChattingModel chattingModel = gson.fromJson(args[1].toString(),ChattingModel.class);
-//                        ChattingUsersRead chattingUsersRead = gson.fromJson(args[2].toString(),ChattingUsersRead.class);
-//                        Log.d(TAG,chattingUsersRead.getRead_items().size()+"사이즈");
+                        ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class);
+                        chatRoomModel.getuser(chattingModel.getUser_idx()).setIdx(chattingModel.getIdx());
+                        sharedSettings.set_chatroom_info(String.valueOf(current_room_idx),gson.toJson(chatRoomModel));
                         ChattingAdapter.set_message_success(chattingModel);
                         break;
                     case "[server_error]메세지보내기":

@@ -8,6 +8,27 @@
     tools:context=".FriendAcitvity">
 
     <LinearLayout
+        android:id="@+id/dasdsa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/update_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.565">
+        <Button
+            android:text="카드수정하기"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+        </Button>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -61,7 +82,7 @@
         android:id="@+id/update_text"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-
+        android:onClick="edit_card"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

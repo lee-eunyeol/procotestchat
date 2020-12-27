@@ -8,25 +8,19 @@ public class ChatRoomModel {
     int idx; //채팅방의 인덱스
     int card_idx;  //모임 인덱스
     int creator_idx; //채팅방 만든사람 인덱스
-    int read_last_idx; //이 사용자가 가장 마지막으로 읽은 메시지 idx
     String kinds; //채팅방 종류 (일반채팅,친구와채팅)
     String creator_profile; //만든사람의 프로필
     String creator_nickname; //만든사람 닉네임
     String room_name; //방 제목
-    String last_message; //마지막 메시지
     List<TagModel> card_tag_list; //태그
     List<UserChatModel> chatroom_users; //채팅방에 참여중인 인원 내역
     CardModel card; //채팅방의 카드정보
     String created_at;// 채팅방이 만들어진 시간
     String updated_at; // 채팅방 수정된 시간
 
-    public int getRead_last_idx() {
-        return read_last_idx;
-    }
 
-    public void setRead_last_idx(int read_last_idx) {
-        this.read_last_idx = read_last_idx;
-    }
+
+
     public int getIdx() {
         return idx;
     }
@@ -99,13 +93,7 @@ public class ChatRoomModel {
         this.updated_at = updated_at;
     }
 
-    public String getLast_message() {
-        return last_message;
-    }
 
-    public void setLast_message(String last_message) {
-        this.last_message = last_message;
-    }
 
     public List<TagModel> getCard_tag_list() {
         return card_tag_list;
@@ -153,18 +141,18 @@ public class ChatRoomModel {
 
 
 
-    public ChatRoomModel(int idx, int card_idx, int creator_idx,int read_last_idx, String kinds, String creator_profile, String creator_nickname, String room_name, String created_at, String updated_at, String last_message, List<TagModel> card_tag_list, List<UserChatModel> chatroom_users, CardModel card) {
+    public ChatRoomModel(int idx, int card_idx, int creator_idx, String kinds, String creator_profile, String creator_nickname, String room_name, String created_at, String updated_at, List<TagModel> card_tag_list, List<UserChatModel> chatroom_users, CardModel card) {
         this.idx = idx;
         this.card_idx = card_idx;
         this.creator_idx = creator_idx;
-        this.read_last_idx =  read_last_idx;
+
         this.kinds = kinds;
         this.creator_profile = creator_profile;
         this.creator_nickname = creator_nickname;
         this.room_name = room_name;
         this.created_at = created_at;
         this.updated_at = updated_at;
-        this.last_message = last_message;
+
         this.card_tag_list = card_tag_list;
         this.chatroom_users = chatroom_users;
         this.card = card;

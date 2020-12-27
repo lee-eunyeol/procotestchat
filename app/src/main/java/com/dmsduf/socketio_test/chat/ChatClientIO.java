@@ -187,7 +187,7 @@ public class ChatClientIO extends Service {
 
 
         sharedSettings.set_something_string("token3", tokenuser2);
-        opts.query = "token=" + tokenuser1;
+        opts.query = "token=" + tokenuser2;
 
         opts.transports = new String[] { WebSocket.NAME };
 
@@ -261,6 +261,11 @@ public class ChatClientIO extends Service {
         //엑티비티 매니져 현재 최상단 스택의 위치를 알기위해 사용
         ActivityManager mngr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         String topstack_name = mngr.getAppTasks().get(0).getTaskInfo().topActivity.getClassName();
+        //상대방 카드가 업데이트 됬을때 받는 이벤트
+        socket.on(S2C+"update_card",args -> {
+           Log.d(TAG,"카드 업데이트"+args[0].toString());
+        });
+
         //소켓연결완료시  받는 이벤트
         socket.on(S2C + "connect_complete", args -> {
             //
@@ -296,13 +301,24 @@ public class ChatClientIO extends Service {
             }
 
         });
-
+        String C2S = "client_to_server";
+        socket.on(S2C+"user_read",args -> {
+           Log.d(TAG,"이사림 읽었으니 메시지 업데이트해줄것"+args[0].toString());
+           UserChatModel userChatModel = gson.fromJson(args[0].toString(),UserChatModel.class);
+           String chatroom_idx = args[1].toString();
+           ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(chatroom_idx)),ChatRoomModel.class);
+            chatRoomModel.setuser(userChatModel);
+            sharedSettings.set_chatroom_info(chatroom_idx,gson.toJson(chatRoomModel));
+        });
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
 
             String data = (String) args[0];
             ChattingModel chattingModel = gson.fromJson(data, ChattingModel.class);
 
+            UserChatModel userChatModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(chattingModel.getChatroom_idx())),ChatRoomModel.class).getuser(sharedSettings.get_something_int("user_idx"));
+            userChatModel.setRead_last_idx(chattingModel.getIdx());
+            socket.emit(C2S+"user_read",gson.toJson(userChatModel),chattingModel.getChatroom_idx());
             //새로 받은 메시지를 쉐어드에 추가한다.
             save_chat_data(chattingModel);
 
@@ -334,7 +350,7 @@ public class ChatClientIO extends Service {
 
 
         });
-        String C2S = "client_to_server";
+
 
         //다른사람이 채팅방에 참여했다는 알림을 준다.
         socket.on(S2C + "join_room", args -> {

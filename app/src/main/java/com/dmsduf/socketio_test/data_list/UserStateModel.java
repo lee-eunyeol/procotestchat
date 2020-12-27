@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class UserStateModel {
     int user_idx;  // 사용자의 인덱스
     String state; //상태명 (on,off)
+    String state_data; // 상태 관련정보
     ArrayList<Integer> announce_users; //알릴 친구 idx리스트
 
 

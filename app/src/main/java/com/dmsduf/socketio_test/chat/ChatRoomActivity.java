@@ -71,7 +71,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             String msg = intent.getStringExtra("message");
             Log.d("리시버", "방목록에서메세지 받음" + msg);
             ChattingModel chattingModel = gson.fromJson(msg,ChattingModel.class);
-           chatRoomAdapter.update_new_message(chattingModel);
+           chatRoomAdapter.notify_with_handler();
 
 
         }};

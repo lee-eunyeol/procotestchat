@@ -23,6 +23,8 @@ import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONObject;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +76,35 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((view_holder)holder).last_message.setText(chatRoomModel.get(position).getLast_message());
+        Type type = new TypeToken<List<ChattingModel>>() {
+        }.getType();
+
+        String chatstring  = sharedSettings.get_chatroom_messages(String.valueOf(chatRoomModel.get(position).getIdx()));
+        if(chatstring.equals("없음")) {
+            ((view_holder) holder).last_message.setText("채팅메시지없음");
+        }
+        else{
+            List<ChattingModel> chat_datas  = gson.fromJson(chatstring,type);
+            ((view_holder) holder).last_message.setText(chat_datas.get(chat_datas.size() - 1).getContent());
+
+            int none_see_count = 0;
+
+            for(int i = chat_datas.size()-1;i>=0;i--){
+                int user_last_idx = chatRoomModel.get(position).getuser(sharedSettings.get_something_int("user_idx")).getRead_last_idx();
+                //메시지 idx가 이사람이 가장최근의 읽은 idx보다 크면 안읽은거 작으면 읽은거
+                if (chat_datas.get(i).getIdx()<=user_last_idx){
+                    break;
+                }
+                else{
+
+                    none_see_count = none_see_count+1;
+                }
+
+            }
+            Log.d(TAG,none_see_count+"");
+            ((view_holder)holder).recycler_chat_list_see_count.setText(none_see_count+"");
+        }
+
         ((view_holder)holder).chat_list_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,48 +125,11 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ((view_holder)holder).creator.setText(chatRoomModel.get(position).getCreator_nickname());
         ((view_holder)holder).room_title.setText(chatRoomModel.get(position).getRoom_name());
         ((view_holder)holder).time.setText(chatRoomModel.get(position).getCreated_at());
-        String messages = sharedSettings.get_chatroom_messages(String.valueOf(chatRoomModel.get(position).getIdx()));
 
-        Type type = new TypeToken<List<ChattingModel>>() {
-        }.getType();
-
-        if(messages.equals("없음")){Log.d(TAG,"안읽은메시지오류");}
-        else{
-            int none_see_count = 0;
-            ArrayList<ChattingModel> chat_datas = gson.fromJson(messages,type);
-
-
-            for(int i = chat_datas.size()-1;i>=0;i--){
-                Log.d(TAG,"비교"+chat_datas.get(i).getIdx()+"vs"+chatRoomModel.get(position).getRead_last_idx());
-                //메시지 idx가 이사람이 가장최근의 읽은 idx보다 크면 안읽은거 작으면 읽은거
-                if (chat_datas.get(i).getIdx()<=chatRoomModel.get(position).getRead_last_idx()){
-                    break;
-                }
-                else{
-
-                    none_see_count = none_see_count+1;
-                }
-
-            }
-            Log.d(TAG,none_see_count+"");
-            ((view_holder)holder).recycler_chat_list_see_count.setText(none_see_count+"");
-        }
 
 
     }
-    public void update_new_message(ChattingModel chattingModel){
-        for (int i= 0 ; i<chatRoomModel.size();i++){
-            Log.d(TAG,"바"+chatRoomModel.get(i).getIdx()+"/"+chattingModel.getChatroom_idx());
-            if (chatRoomModel.get(i).getIdx()==chattingModel.getChatroom_idx()){
-                Log.d(TAG,"바뀌어야할 채팅방 찾음");
-                chatRoomModel.get(i).setLast_message(chattingModel.getContent());
-                chatRoomModel.get(i).setCreated_at(chattingModel.getCreated_at());
 
-                break;
-            }
-        }
-        notify_with_handler();
-    }
     @Override
     public int getItemCount() {
         return chatRoomModel.size();

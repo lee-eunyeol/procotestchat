@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.dmsduf.socketio_test.chat.ChatClientIO;
+import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.UserStateModel;
 import com.dmsduf.socketio_test.data_list.UserModel;
 
@@ -133,6 +134,14 @@ public class FriendAcitvity extends AppCompatActivity {
 
             }
         });
+    }
+    public void edit_card(View v){
+        //채팅방 정보 쉐어드에서 불러오기
+        ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info("5"),ChatRoomModel.class);
+        //채팅방의 제목이 바뀌었을때
+        chatRoomModel.getCard().setTitle("바뀐카드제목");
+        //채팅서버에 바뀐 내용 json으로 변환하여 전송
+        socket.emit(C2S+"update_card",gson.toJson(chatRoomModel));
 
     }
 }
