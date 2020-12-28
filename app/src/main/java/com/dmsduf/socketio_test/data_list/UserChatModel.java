@@ -4,7 +4,17 @@ public class UserChatModel {
     int idx;
     String nickname;
     String profile_photo_path;
+    int read_start_idx;
     int read_last_idx;
+    String deleted_at;
+
+    public String getDeleted_at() {
+        return deleted_at;
+    }
+
+    public void setDeleted_at(String deleted_at) {
+        this.deleted_at = deleted_at;
+    }
 
     public int getIdx() {
         return idx;
@@ -46,13 +56,14 @@ public class UserChatModel {
         this.read_start_idx = read_start_idx;
     }
 
-    public UserChatModel(int idx, String nickname, String profile_photo_path, int read_last_idx, int read_start_idx) {
+    public UserChatModel(int idx, String nickname, String profile_photo_path, int read_last_idx, int read_start_idx,String deleted_at) {
         this.idx = idx;
         this.nickname = nickname;
         this.profile_photo_path = profile_photo_path;
         this.read_last_idx = read_last_idx;
         this.read_start_idx = read_start_idx;
+        this.deleted_at = deleted_at;
     }
 
-    int read_start_idx;
+
 }

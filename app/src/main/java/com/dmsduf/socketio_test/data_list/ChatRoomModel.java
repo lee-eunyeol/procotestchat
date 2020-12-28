@@ -9,7 +9,6 @@ public class ChatRoomModel {
     int card_idx;  //모임 인덱스
     int creator_idx; //채팅방 만든사람 인덱스
     String kinds; //채팅방 종류 (일반채팅,친구와채팅)
-    String creator_profile; //만든사람의 프로필
     String creator_nickname; //만든사람 닉네임
     String room_name; //방 제목
     List<TagModel> card_tag_list; //태그
@@ -53,13 +52,7 @@ public class ChatRoomModel {
         this.kinds = kinds;
     }
 
-    public String getCreator_profile() {
-        return creator_profile;
-    }
 
-    public void setCreator_profile(String creator_profile) {
-        this.creator_profile = creator_profile;
-    }
 
     public String getCreator_nickname() {
         return creator_nickname;
@@ -112,7 +105,7 @@ public class ChatRoomModel {
                 return userChatModel;
             }
         }
-        return new UserChatModel(-1,"없음","아",-1,-1);
+        return new UserChatModel(-1,"없음","아",-1,-1,"-1");
 
     }
     public void setuser(UserChatModel userChatModeling){
@@ -141,13 +134,13 @@ public class ChatRoomModel {
 
 
 
-    public ChatRoomModel(int idx, int card_idx, int creator_idx, String kinds, String creator_profile, String creator_nickname, String room_name, String created_at, String updated_at, List<TagModel> card_tag_list, List<UserChatModel> chatroom_users, CardModel card) {
+    public ChatRoomModel(int idx, int card_idx, int creator_idx, String kinds, String creator_nickname, String room_name, String created_at, String updated_at, List<TagModel> card_tag_list, List<UserChatModel> chatroom_users, CardModel card) {
         this.idx = idx;
         this.card_idx = card_idx;
         this.creator_idx = creator_idx;
 
         this.kinds = kinds;
-        this.creator_profile = creator_profile;
+
         this.creator_nickname = creator_nickname;
         this.room_name = room_name;
         this.created_at = created_at;

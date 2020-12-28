@@ -184,14 +184,15 @@ public class ChattingActivity extends AppCompatActivity {
                 Log.d(TAG,"[callback]"+args[0]+"/"+args[1]);
 //                Log.d(TAG,"[callback]"+args[2]);
                 switch (String.valueOf(args[0])){
-                    case "[success]메세지보내기" :   //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면 채팅메세지를 업데이트
+                    case "success" :   //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면 채팅메세지를 업데이트
                         ChattingModel chattingModel = gson.fromJson(args[1].toString(),ChattingModel.class);
                         ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class);
                         chatRoomModel.getuser(chattingModel.getUser_idx()).setIdx(chattingModel.getIdx());
                         sharedSettings.set_chatroom_info(String.valueOf(current_room_idx),gson.toJson(chatRoomModel));
                         ChattingAdapter.set_message_success(chattingModel);
+
                         break;
-                    case "[server_error]메세지보내기":
+                    case "fail":
                         ChattingAdapter.set_message_error(Long.parseLong(args[1].toString()));
                         break;
                 }
@@ -243,19 +244,15 @@ public class ChattingActivity extends AppCompatActivity {
 //
 //        }};
 
-//채팅방에 입장하면서 채팅메시지내역 전체를 불러오는 부분
+//채팅방에 입장하면서 메시지를 읽었음을 알린다.
 public void join_room_to_server(){
     //소켓이 연결되어있을경우에만 업데이트
-    Log.d("join_room",socket.connected()+"");
+    Log.d("user_read",socket.connected()+"");
     UserChatModel userChatModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class).getuser(sharedSettings.get_something_int("user_idx"));
 
     if(socket.connected()) {
-        socket.emit( "client_to_serverjoin_room", gson.toJson(userChatModel),current_room_idx, new Ack() {
-            @Override
-            public void call(Object... args) {
-
-            }
-        });
+        socket.emit( "client_to_serveruser_read", gson.toJson(userChatModel),current_room_idx
+        );
 
     }
 }
@@ -275,11 +272,18 @@ public void join_room_to_server(){
         if(!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
             Type type = new TypeToken<List<ChattingModel>>() {}.getType();
             chat_data = gson.fromJson(sharedSettings.get_chatroom_messages(String.valueOf(room_idx)), type);
+            chatRoomModel.getuser(sharedSettings.get_something_int("user_idx")).setRead_last_idx(chat_data.get(chat_data.size()-1).getIdx());
+            sharedSettings.set_chatroom_info(String.valueOf(room_idx),gson.toJson(chatRoomModel));
             //내가 안읽었던 메시지들은 전부 읽음처리 해준다.
         }
         else{
             Log.d(TAG,"[onstart]저장된 채팅메시지내역이 없어요.");
             chat_data = new ArrayList<>();
+        }
+        //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
+        //소켓이 연결되어있다면 통신을 통해서 추가적으로 메시지 전체를 가져온다.--삭제
+        if(socket.connected()){
+            join_room_to_server();
         }
         //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
         ChatRoomModel roomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class);
@@ -287,11 +291,7 @@ public void join_room_to_server(){
         chat_recyclerview.setAdapter(ChattingAdapter);
         chat_recyclerview.setLayoutManager(new LinearLayoutManager(this));
 
-        //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
-        //소켓이 연결되어있다면 통신을 통해서 추가적으로 메시지 전체를 가져온다.--삭제
-        if(socket.connected()){
-        join_room_to_server();
-        }
+
     }
     @Override
     protected void onPause() {
@@ -302,7 +302,7 @@ public void join_room_to_server(){
     protected void onStop() {
         super.onStop();
         is_chatting_room = false;
-        ChatClientIO.emit_socket(ChattingActivity.this,"outfocus_room", room_idx, new Ack() {
+        socket.emit("client_to_serveroutfocus_room",room_idx, new Ack() {
             @Override
             public void call(Object... args) {
 

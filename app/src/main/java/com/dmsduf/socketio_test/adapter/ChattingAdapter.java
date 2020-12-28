@@ -122,7 +122,10 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.my_idx = my_idx;
         this.roomModel = roomModel;
         this.handler = new Handler();
+        userchatmodelmap = new HashMap<>();
         for(UserChatModel userChatModel:roomModel.getChatroom_users()){
+            Log.d(TAG,userChatModel.getIdx()+"");
+            Log.d(TAG,userChatModel.getNickname());
             userchatmodelmap.put(userChatModel.getIdx(),userChatModel);
         }
 
@@ -134,25 +137,28 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ChattingModel data_ = chat_data.get(position);
         if (data_.getUser_idx() == my_idx) {
             return my_chat;
-        } else {
+        }
+
+        else {
             return opponent_chat;
         }
 
     }
 
     public int get_chatroom_read_count(int idx , List<UserChatModel> userChatModels){
-        int peoplecount = 0;
-        int read_count= 0;
+        int peoplecount = userChatModels.size();
+
         for(UserChatModel userChatModel : userChatModels){
             int read_start_idx = userChatModel.getRead_start_idx();
             int read_last_idx =userChatModel.getRead_last_idx();
-            peoplecount++;
-            if(idx>read_start_idx && idx<read_last_idx){
-                read_count++;
+            //메시지 idx가 이사람의 시작idx와 끝idx사이면 읽었다는 소리임
+            if(idx>=read_start_idx && idx<=read_last_idx){
+                Log.d(TAG,userChatModel.getIdx()+"는 이채팅을 읽었음");
+                peoplecount--;
             }
         }
-        Log.d(TAG,"방번호"+roomModel.getIdx()+"메시지idx: "+read_count+"" + peoplecount+"메시지별인원수");
-        return peoplecount-read_count;
+;
+        return peoplecount;
 
     }
     @NonNull
@@ -208,8 +214,13 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             case opponent_chat:
                 ((op_chat_view_holder) holder).chat.setText(chat_data.get(position).getContent());
-                ((op_chat_view_holder) holder).recycler_op_name.setText(userchatmodelmap.get(chat_data.get(position).getUser_idx()).getNickname());
+                Log.d(TAG,chat_data.get(position).getUser_idx()+"유저인덱스");
+                if(chat_data.get(position).getUser_idx()==-3){
 
+                }
+                else {
+                    ((op_chat_view_holder) holder).recycler_op_name.setText(userchatmodelmap.get(chat_data.get(position).getUser_idx()).getNickname());
+                }
                 //읽음처리
                 if (chat_data.get(position).getKinds().contains("[pending]")) {
                     Log.d(TAG, "소켓연결이 안되서 메세지 안보내짐");

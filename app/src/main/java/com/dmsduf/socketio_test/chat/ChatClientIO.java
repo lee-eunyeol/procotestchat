@@ -302,23 +302,26 @@ public class ChatClientIO extends Service {
 
         });
         String C2S = "client_to_server";
-        socket.on(S2C+"user_read",args -> {
-           Log.d(TAG,"이사림 읽었으니 메시지 업데이트해줄것"+args[0].toString());
-           UserChatModel userChatModel = gson.fromJson(args[0].toString(),UserChatModel.class);
-           String chatroom_idx = args[1].toString();
-           ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(chatroom_idx)),ChatRoomModel.class);
-            chatRoomModel.setuser(userChatModel);
-            sharedSettings.set_chatroom_info(chatroom_idx,gson.toJson(chatRoomModel));
-        });
+
         socket.on(S2C + "message", args -> {
             Log.d(TAG, "메세지받음!" + (String) args[0]);
 
             String data = (String) args[0];
             ChattingModel chattingModel = gson.fromJson(data, ChattingModel.class);
+           //----
+            //메시지온사람 idx업데이트
+            if(chattingModel.getUser_idx()==-3){}
+            else{
+            ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(chattingModel.getChatroom_idx())),ChatRoomModel.class);
+            chatRoomModel.getuser(chattingModel.getUser_idx()).setRead_last_idx(chattingModel.getIdx());
 
-            UserChatModel userChatModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(chattingModel.getChatroom_idx())),ChatRoomModel.class).getuser(sharedSettings.get_something_int("user_idx"));
-            userChatModel.setRead_last_idx(chattingModel.getIdx());
-            socket.emit(C2S+"user_read",gson.toJson(userChatModel),chattingModel.getChatroom_idx());
+            if (chattingModel.getChatroom_idx() == current_room_idx && is_chatting_room) {
+                Log.d(TAG,"채팅방보고있어서 내꺼 업데이트");
+                chatRoomModel.getuser(sharedSettings.get_something_int("user_idx")).setRead_last_idx(chattingModel.getIdx());
+                socket.emit(C2S+"user_read",gson.toJson(chatRoomModel.getuser(sharedSettings.get_something_int("user_idx"))),chattingModel.getChatroom_idx(),true);
+            }
+           sharedSettings.set_chatroom_info(String.valueOf(chatRoomModel.getIdx()),gson.toJson(chatRoomModel));
+            }
             //새로 받은 메시지를 쉐어드에 추가한다.
             save_chat_data(chattingModel);
 
@@ -353,18 +356,18 @@ public class ChatClientIO extends Service {
 
 
         //다른사람이 채팅방에 참여했다는 알림을 준다.
-        socket.on(S2C + "join_room", args -> {
+        socket.on(S2C + "user_read", args -> {
+            Log.d(TAG,"이사람 읽었으니 메시지 업데이트해줄것"+args[0].toString());
+            String chatroom_idx = args[1].toString();
             UserChatModel userChatModel = gson.fromJson(args[0].toString(),UserChatModel.class);
-            String read_last_idx = String.valueOf(userChatModel.getRead_last_idx());
-            String user_idx = String.valueOf(userChatModel.getIdx());
-            String room_idx = args[1].toString();
-            Log.d("리시버", user_idx + "번 유저가" + room_idx + "번 채팅방에 들어왔어요. 가장 최근 idx는 " + read_last_idx + "입니다");
-            sharedSettings.update_chatroom_message(userChatModel, room_idx);
+            update_read_last_idx(chatroom_idx,userChatModel);
+            //만약 지금 업데이트된 채팅방을 보고 있다면 메시지를 실시간으로 업데이트 합니다.
+            if (is_chatting_room && current_room_idx == Integer.parseInt(chatroom_idx)) {
+                int myindex = sharedSettings.get_something_int("user_idx");
+            Log.d(TAG,"내가 채팅방을 읽고 있었기때문에 나도 최신메시지idx를 업데이트 합니다."+"내인덱슽는"+myindex);
+            UserChatModel userChatModel1 = gson.fromJson(sharedSettings.get_chatroom_info(chatroom_idx),ChatRoomModel.class).getuser(myindex);
+            update_read_last_idx(chatroom_idx,userChatModel1);
 
-            //만약 지금 업데이트된 채팅방을 보고 있다면 메시지를 실시간으로 없데이트 합니다.
-            if (is_chatting_room && current_room_idx == Integer.parseInt(room_idx)) {
-
-                // 쉐어드에 업데이트 된 데이터를 저장하도록 한다.
             }
         });
         //친구들중 한명의 상태가 바뀌었을때 알림받는곳
@@ -384,6 +387,12 @@ public class ChatClientIO extends Service {
         });
 
 
+    }
+    //불러온 userchatmodel을 알맞게 읽음처리
+    private void update_read_last_idx(String chatroom_idx,UserChatModel userChatModel){
+        ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info(chatroom_idx),ChatRoomModel.class);
+        chatRoomModel.setuser(userChatModel);
+        sharedSettings.set_chatroom_info(chatroom_idx,gson.toJson(chatRoomModel));
     }
 
     //메시지를 받았을때 , 채팅 메시지를 알맞게 저장하는 메소드
