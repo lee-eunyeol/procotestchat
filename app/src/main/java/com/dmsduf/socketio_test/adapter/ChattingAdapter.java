@@ -16,7 +16,6 @@ import com.dmsduf.socketio_test.R;
 import com.dmsduf.socketio_test.data_list.ChatRoomModel;
 import com.dmsduf.socketio_test.data_list.ChattingModel;
 import com.dmsduf.socketio_test.data_list.ChattingUsersRead;
-import com.dmsduf.socketio_test.data_list.RoomModel;
 import com.dmsduf.socketio_test.data_list.UserChatModel;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     final static int my_chat = 1;
     final static int opponent_chat = 2;
     final static int speaker = 3;
-    HashMap<Integer,UserChatModel> userchatmodelmap;
+    HashMap<Integer,UserChatModel> UserChatModel_MAP;
     ChattingUsersRead chattingUsersRead;
     String TAG = "채팅어댑터";
     int my_idx;
@@ -58,14 +57,18 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     //성공적으로 메세지를 보냈을 경우 해당하는 메세지를 보냈던 정확한 시간(currenttimemills)을 찾아서 업데이트 시켜준다.
     public void set_message_success(ChattingModel server_msg) {
+
         for (int i = chat_data.size(); i >0; i--) {
             Log.d(TAG,"set_message_success메시지찾기");
             if (chat_data.get(i-1).getFront_created_at() - server_msg.getFront_created_at() == 0) {  //프론트가 보냈던 시간과 맞는 데이터를 찾은 후 메시지를 바꾼다.
                 chat_data.set(i-1,server_msg);
-                notify_with_handler();
+
                 break;
             }
         }
+
+
+        notify_with_handler();
     }
 
     //중간에 들어온 사람이 가장 최근읽은 메시지를 기준으로 , 그 이후 에 나온 메시지를 찾아 read_count횟수를 1늘린다.
@@ -122,13 +125,13 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.my_idx = my_idx;
         this.roomModel = roomModel;
         this.handler = new Handler();
-        userchatmodelmap = new HashMap<>();
-        for(UserChatModel userChatModel:roomModel.getChatroom_users()){
-            Log.d(TAG,userChatModel.getIdx()+"");
-            Log.d(TAG,userChatModel.getNickname());
-            userchatmodelmap.put(userChatModel.getIdx(),userChatModel);
+        //HashMap<Integer,UserChatModel> UserChatModel_MAP; 전역변수로 선언
+        UserChatModel_MAP = new HashMap<>();
+        //ChatroomModel의 List<chatroom_users>
+        for(UserChatModel userChatModel:roomModel.getChatroom_users()) {
+            //{idx,userChatModel} 형태로 저장한다.
+            UserChatModel_MAP.put(userChatModel.getIdx(), userChatModel);
         }
-
     }
 
     @Override
@@ -145,18 +148,26 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     }
 
-    public int get_chatroom_read_count(int idx , List<UserChatModel> userChatModels){
-        int peoplecount = userChatModels.size();
+    public int get_chatroom_read_count(int message_idx , List<UserChatModel> userChatModels){
+        int peoplecount = 0;
 
         for(UserChatModel userChatModel : userChatModels){
             int read_start_idx = userChatModel.getRead_start_idx();
             int read_last_idx =userChatModel.getRead_last_idx();
-            //메시지 idx가 이사람의 시작idx와 끝idx사이면 읽었다는 소리임
-            if(idx>=read_start_idx && idx<=read_last_idx){
-                Log.d(TAG,userChatModel.getIdx()+"는 이채팅을 읽었음");
-                peoplecount--;
+            //애초에 참여도 안한사람이 있으면 -1해줘야함
+            if(message_idx>=userChatModel.getRead_start_idx()){
+                Log.d(TAG,userChatModel.getIdx()+"이사람은 참여도안했어 그래서 -1함");
+                peoplecount = peoplecount+1;
             }
+            //메시지 idx가 이사람의 시작idx와 끝idx사이면 읽었다는 소리임
+            if(message_idx>=read_start_idx && message_idx<=read_last_idx){
+
+                Log.d(TAG,userChatModel.getIdx()+"는 이채팅을 읽어서 -1함");
+                peoplecount = peoplecount-1;
+            }
+
         }
+
 ;
         return peoplecount;
 
@@ -215,11 +226,11 @@ public class ChattingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case opponent_chat:
                 ((op_chat_view_holder) holder).chat.setText(chat_data.get(position).getContent());
                 Log.d(TAG,chat_data.get(position).getUser_idx()+"유저인덱스");
-                if(chat_data.get(position).getUser_idx()==-3){
+                if(chat_data.get(position).getUser_idx()==-1){
 
                 }
                 else {
-                    ((op_chat_view_holder) holder).recycler_op_name.setText(userchatmodelmap.get(chat_data.get(position).getUser_idx()).getNickname());
+                    ((op_chat_view_holder) holder).recycler_op_name.setText(UserChatModel_MAP.get(chat_data.get(position).getUser_idx()).getNickname());
                 }
                 //읽음처리
                 if (chat_data.get(position).getKinds().contains("[pending]")) {

@@ -187,8 +187,13 @@ public class ChattingActivity extends AppCompatActivity {
                     case "success" :   //메세지를 보내고 나서 성공적으로 메세지를 보냈다고 서버에게 응답을 받는다면 채팅메세지를 업데이트
                         ChattingModel chattingModel = gson.fromJson(args[1].toString(),ChattingModel.class);
                         ChatRoomModel chatRoomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class);
-                        chatRoomModel.getuser(chattingModel.getUser_idx()).setIdx(chattingModel.getIdx());
+                        chatRoomModel.getuser(chattingModel.getUser_idx()).setRead_last_idx(chattingModel.getIdx());
                         sharedSettings.set_chatroom_info(String.valueOf(current_room_idx),gson.toJson(chatRoomModel));
+
+
+
+                        Log.d(TAG,gson.toJson(chattingModel));
+                        sharedSettings.set_chatroom_messages(String.valueOf(chattingModel.getChatroom_idx()),gson.toJson(chattingModel));
                         ChattingAdapter.set_message_success(chattingModel);
 
                         break;
@@ -249,6 +254,7 @@ public void join_room_to_server(){
     //소켓이 연결되어있을경우에만 업데이트
     Log.d("user_read",socket.connected()+"");
     UserChatModel userChatModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class).getuser(sharedSettings.get_something_int("user_idx"));
+    Log.d(TAG,userChatModel.getIdx()+":;;"+userChatModel.getRead_last_idx());
 
     if(socket.connected()) {
         socket.emit( "client_to_serveruser_read", gson.toJson(userChatModel),current_room_idx
@@ -268,6 +274,11 @@ public void join_room_to_server(){
         //유저 idx함께 보내준다.
         //저장되어 있던 채팅데이터 및 채팅방 데이터를 받아온다.
 //        sharedSettings.clear();
+        //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
+        //소켓이 연결되어있다면 통신을 통해서 추가적으로 메시지 전체를 가져온다.--삭제
+        if(socket.connected()){
+            join_room_to_server();
+        }
       ChatRoomModel chatRoomModel =   gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(room_idx)), ChatRoomModel.class);
         if(!sharedSettings.get_chatroom_messages(String.valueOf(room_idx)).equals("없음")) {
             Type type = new TypeToken<List<ChattingModel>>() {}.getType();
@@ -280,11 +291,7 @@ public void join_room_to_server(){
             Log.d(TAG,"[onstart]저장된 채팅메시지내역이 없어요.");
             chat_data = new ArrayList<>();
         }
-        //TODO 현재 데이터 전체를 가져오는데 나중엔 부분적으로 업데이트된 메시지만 가져오도록 하는게 바람직할듯
-        //소켓이 연결되어있다면 통신을 통해서 추가적으로 메시지 전체를 가져온다.--삭제
-        if(socket.connected()){
-            join_room_to_server();
-        }
+
         //TODO 서버와 통신해서 ChatroomModel 불러와야 한다. or 쉐어드
         ChatRoomModel roomModel = gson.fromJson(sharedSettings.get_chatroom_info(String.valueOf(current_room_idx)),ChatRoomModel.class);
         ChattingAdapter = new ChattingAdapter(this,chat_data,user_idx,roomModel);

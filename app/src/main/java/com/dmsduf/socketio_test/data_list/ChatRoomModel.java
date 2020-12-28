@@ -8,9 +8,9 @@ public class ChatRoomModel {
     int idx; //채팅방의 인덱스
     int card_idx;  //모임 인덱스
     int creator_idx; //채팅방 만든사람 인덱스
-    String kinds; //채팅방 종류 (일반채팅,친구와채팅)
+    String kinds; //채팅방 종류 (일반,친구,모임)
     String creator_nickname; //만든사람 닉네임
-    String room_name; //방 제목
+    String room_name; //방 제목 -일반적으로 널값 옵니다.
     List<TagModel> card_tag_list; //태그
     List<UserChatModel> chatroom_users; //채팅방에 참여중인 인원 내역
     CardModel card; //채팅방의 카드정보

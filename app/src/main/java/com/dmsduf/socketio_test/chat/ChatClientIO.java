@@ -265,7 +265,10 @@ public class ChatClientIO extends Service {
         socket.on(S2C+"update_card",args -> {
            Log.d(TAG,"카드 업데이트"+args[0].toString());
         });
-
+        socket.on(S2C+"banish_user",args -> {
+           Log.d("banish_user","추방당했어요;;"+args[0].toString());
+           socket.emit("client_to_serverbanished_room",args[0].toString());
+        });
         //소켓연결완료시  받는 이벤트
         socket.on(S2C + "connect_complete", args -> {
             //

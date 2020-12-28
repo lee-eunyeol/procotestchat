@@ -144,4 +144,12 @@ public class FriendAcitvity extends AppCompatActivity {
         socket.emit(C2S+"update_card",gson.toJson(chatRoomModel));
 
     }
+    public void banish_user(View v){
+        socket.emit(C2S + "banish_user", gson.toJson(new UserModel(2, "닉네임", "프로파일")), gson.toJson(new UserModel(1, "닉네임", "프로파일")), 5, new Ack() {
+            @Override
+            public void call(Object... args) {
+                Log.d("banish_user","추방하고 답변옴"+args[0].toString());
+            }
+        });
+    }
 }
